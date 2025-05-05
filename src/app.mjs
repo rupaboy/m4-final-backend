@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 import methodOverride from 'method-override';
-import router from './routes/spanishRoutes.mjs';
-import { mongoConnect } from './config/mongoConnect.mjs'
+import router from './routes/countryRoutes.mjs';
+import { mongoConnect } from './config/mongoConnect.mjs';
 import expressEjsLayouts from 'express-ejs-layouts';
 import { fileURLToPath } from 'url';
 
@@ -27,9 +27,6 @@ app.use(methodOverride('_method')); //PUT y DELETE en formularios HTML
 app.use(expressEjsLayouts);
 app.set('layout', 'layout');
 
-app.get('/api/', (req,res) => {
-    res.send('middleware index en /api/')
-});
 
 //Rutas
 app.use('/api/', router);
@@ -46,3 +43,4 @@ mongoConnect();
 app.listen(PORT, () => {
     console.log('Servidor escuchando en el puerto: ', PORT )
 });
+

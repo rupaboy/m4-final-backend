@@ -3,6 +3,7 @@ import Country from "../models/countryModel.mjs";
 
 export const apiRestConsumer = async () => {
     try {
+        console.log('Rest Countries consumer initialized')
         const response = await fetch('https://restcountries.com/v3.1/all');
         if (!response.ok) {
             throw new Error('Error en la solicitud a RestCountries')
@@ -41,7 +42,7 @@ export const apiRestConsumer = async () => {
             try {
                 //Subir a MongoDB
 
-                //console.log(spanishSpeakingCountries)
+                console.log(spanishSpeakingCountries)
                 const result = await Country.insertMany(spanishSpeakingCountries)
                 console.log('Datos subidos satisfactoriamente', result)
             }

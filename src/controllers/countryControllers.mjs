@@ -1,13 +1,10 @@
 import {
     getAllCountries,
     getCountryById,
-    addNewCountry,
-    editCountry,
-    deleteCountry,
     postCountry,
     editCountryById,
     removeCountryById,
-//  removeAllCountries,
+    removeAllCountries,
 } from '../services/countryServices.mjs';
 
 
@@ -16,8 +13,14 @@ export async function getAllCountriesController(req, res) {
     
     try {
         const countries = await getAllCountries();
+        const listedCountriesNumber = countries.length;
 
-        res.status(200).json(countries)
+        res.status(200).render('dashboard', {
+
+            title: `Dashboard - ${listedCountriesNumber} items`,
+            countries
+        })
+        
     } catch (error) {
         res.status(500).send('500', error)
     }
@@ -82,7 +85,7 @@ export async function editCountryByIdController(req, res) {
         const {id} = req.params
         const updatedCountry = req.body
     
-        const country = await editarSuperheroePorId(id, updatedCountry)
+        const country = await editCountryById(id, updatedCountry)
         
         if (country.length === 0) {
             
@@ -114,7 +117,7 @@ export async function removeCountryByIdController(req, res) {
     }
 }
 
-/*
+
 export async function removeAllCountriesController(req, res) {
 
     try {
@@ -125,4 +128,3 @@ export async function removeAllCountriesController(req, res) {
         res.status(500).send('500', error)
     }
 }
-*/

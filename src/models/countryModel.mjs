@@ -24,7 +24,7 @@
             }
         },
     
-        independent: { type: Boolean, required: true},
+        independent: { type: Boolean, required: false},
         status: { type: String, required: false, default: 'officially-assigned' },
         unMember: { type: Boolean, required: false, default: false },
         
@@ -32,25 +32,27 @@
             type: Map, //Permite acceder a las sub-propiedades de claves dinánimas.
             of: {
                 name: { type: String, required: true }, 
-                symbol: { type: String, required: false }
+                symbol: { type: String, required: true },
+                _id: false
             },
-            required: false
+            required: true
         },
     
-        capital: { type: [String], required: false },
+        capital: { type: [String], required: true },
         region: { type: String, required: true },
         subregion: { type: String, required: false },
     
         languages: { 
             type: Map, //Permite acceder a las sub-propiedades de claves dinánimas.
             of: String,
-            required: false
+            required: true,
+            _id: false
         },
     
         latlng: { type: [Number], required: true },
-        landlocked: { type: Boolean, required: true },
+        landlocked: { type: Boolean, required: false },
         borders: { type: [String], required: false },
-        area: { type: Number, required: false },
+        area: { type: Number, required: true },
         flag: { type: String, required: false }, 
         
         maps: { 
@@ -67,11 +69,12 @@
         gini: { 
             type: Map, //Permite acceder a las sub-propiedades de claves dinánimas.
             of: Number,
-            required: false
+            required: false,
+            _id: false
         },
         
         fifa: { type: String, required: false }, 
-        timezones: { type: [String], required: true },
+        timezones: { type: [String], required: false },
         continents: { type: [String], required: true },
         
         flags: { // Imágenes de la bandera.

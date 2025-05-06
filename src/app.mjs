@@ -5,6 +5,7 @@ import router from './routes/countryRoutes.mjs';
 import { mongoConnect } from './config/mongoConnect.mjs';
 import expressEjsLayouts from 'express-ejs-layouts';
 import { fileURLToPath } from 'url';
+//import {apiRestConsumer} from './helpers/restCountriesToCollection.mjs'
 
 //Instanciar express
 const app = express();
@@ -15,6 +16,9 @@ const PORT = process.env.PORT || 3000;
 //Obtener el directorio del módulo PATH
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+//Helper (Rest Countries Consumer)
+//app.get('/restconsumer', async (req,res) => apiRestConsumer() );
 
 //EJS
 app.set('views', path.join(__dirname, 'views'));
@@ -33,7 +37,7 @@ app.use('/api/', router);
 
 //Manejo de errores para rutas no encontradas
 app.use((req,res,next) => {
-    res.send('404')
+    res.render('404', {title: 'hello world'})
 });
 
 //Conectar a MongoDB

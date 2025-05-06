@@ -10,8 +10,8 @@ export async function getCountryById(id){
 }
 
 //POST
-export async function addNewCountry( countryData ) {
-    return await CountryRepository.addNew( countryData )
+export async function postCountry( countryData ) {
+    return await CountryRepository.post( countryData )
 }
 
 // PUT
@@ -24,8 +24,7 @@ export async function removeCountryById(id) {
     return await CountryRepository.removeById(id); 
 }
 
-/*
-export async function revemoAllCountries() {
-    return await CountryRepository.deleteAll()
+
+export async function removeAllCountries() {
+    return await CountryRepository.removeAll()
 }
-*/

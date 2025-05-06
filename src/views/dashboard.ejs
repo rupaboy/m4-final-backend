@@ -1,0 +1,61 @@
+<main class="grid gap-1 bg-zinc-900 py-8 px-5 justify-center">
+
+<% countries.forEach(( country )=>{ %>
+
+    <div
+    title="_id: <%= country._id %> | Creator: <%= country.creator %>"
+    class="flex flex-wrap justify-center gap-3 items-center py-3 px-[5vw] border border-zinc-800 bg-zinc-800 hover:bg-neutral-700 hover:border-neutral-700 rounded-lg">
+        <img
+            class="rounded mx-2 h-12 w-20 object-cover opacity-80"
+            src="<%= country.flags.svg %>"
+            title="<%= country.flags.alt %>"
+            alt="<%= country.flag %>">
+        </img>
+        
+        <div class="w-25 text-center uppercase font-extrablack text-md text-zinc-100">
+            <% if (country.name.nativeName.spa ) { %>
+                
+                <h3 title=" <%= country.name.official %> ">
+                    <%= country.name.nativeName.spa.common %>
+                </h3>
+
+            <% } else { %>
+
+                <h3 title=" <%= country.name.official %> ">
+                    <%= country.name.common %>
+                </h3>
+
+            <% } %>
+        </div>
+
+        <div class="w-50 text-center text-sm text-neutral-300">
+            
+            <p title="<%= country.region %>">
+                <%= country.subregion %>.
+            </p>
+            
+            <p title="Lat/Long. <%= country.capitalInfo.latlng %>">
+                Capital: <%= country.capital %>
+            </p>
+
+        </div>
+
+        <div class="w-50 text-center text-sm text-neutral-300">
+            
+            <p title="Límites: <%= country.borders %>">
+                Extensión: <%= country.area %> km<sup>2</sup>.
+            </p>
+
+            <p title="Idiomas: <%= Object.keys(country.languages) %>">
+                <%= country.population %> habitantes.
+            </p>
+
+        </div>
+
+        
+    </div>
+
+<% }) %>
+
+</main>
+

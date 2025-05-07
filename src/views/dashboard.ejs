@@ -1,59 +1,100 @@
+<!-- Contenedor principal del body -->
 <main class="grid gap-1 bg-zinc-900 py-8 px-5 justify-center">
 
+    <div
+        title="Totales"
+        class="border border-indigo-900 bg-indigo-950 flex flex-wrap text-center text-sm text-neutral-300 justify-center gap-3 items-center py-3 px-[5vw] rounded-lg">
+
+        <!-- Totales. Columna 1 | Cantidad de paises listados -->
+        <div class="w-50 text-center text-sm text-neutral-300">
+            <p>
+                Listados:
+            </p>
+            <p>
+                <%= listedCountriesNumber.toLocaleString('es-ES') %> países.
+            </p>
+        </div>
+
+        <!-- Totales. Columna 2 | Cantidad de países con índices GINI, Promedio total GINI -->
+        <div class="w-50 text-center text-sm text-neutral-300">
+            <p>
+                GINI (<%= countriesWithGini.toLocaleString('es-ES') %> países):
+            </p>
+            <p>
+                Promedio: <%= countriesGiniAverage.toLocaleString('es-ES') %>.
+            </p>
+        </div>
+
+        <!-- Totales. Columna 3 | Extensión total, Total de habitantes -->
+        <div class="w-50 text-center text-sm text-neutral-300">
+            <p>
+                Area total: <%= countriesTotalArea.toLocaleString('es-ES') %> km<sup>2</sup>.
+            </p>
+            <p>
+                <%= countriesTotalPopulation.toLocaleString('es-ES') %> habitantes.
+            </p>
+        </div>
+    </div>
+
+
+<!-- CARDS -->
 <% countries.forEach(( country )=>{ %>
 
-    <div
-    title="_id: <%= country._id %> | Creator: <%= country.creator %>"
-    class="flex flex-wrap justify-center gap-3 items-center py-3 px-[5vw] border border-zinc-800 bg-zinc-800 hover:bg-neutral-700 hover:border-neutral-700 rounded-lg">
-        <img
-            class="rounded mx-2 h-12 w-20 object-cover opacity-80"
-            src="<%= country.flags.svg %>"
-            title="<%= country.flags.alt %>"
-            alt="<%= country.flag %>">
-        </img>
-        
-        <div class="w-25 text-center uppercase font-extrablack text-md text-zinc-100">
-            <% if (country.name.nativeName.spa ) { %>
-                
-                <h3 title=" <%= country.name.official %> ">
-                    <%= country.name.nativeName.spa.common %>
-                </h3>
+        <!-- CARDS - Columna 1 | Bandera del país -->
+    <a href="/api/countries/<%= country._id %>">
+        <div
+        title="_id: <%= country._id %> (<%= country.creator %>)."
+        class="border-zinc-700 hover:border-zinc-600 hover:bg-zinc-700 flex flex-wrap justify-center gap-3 items-center py-3 px-[5vw] border border-zinc-700 bg-zinc-800 rounded-lg">
+            <img
+                class="text-center text-lg leading-10 rounded mx-2 h-10 w-18 object-cover opacity-80"
+                src="<%= country.flags.svg %>"
+                title="<%= country.flags.alt %>"
+                alt="<%= country.flag %>">
+            </img>
 
-            <% } else { %>
+            <!-- CARDS - Columna 2 | Nombre del país -->        
+            <div class="w-25 leading-tigth text-center uppercase font-extrablack text-sm text-zinc-100">
+                <% if (country.name.nativeName.spa ) { %>
 
-                <h3 title=" <%= country.name.official %> ">
-                    <%= country.name.common %>
-                </h3>
+                    <h3 title="<%= country.name.official %>">
+                        <%= country.name.nativeName.spa.common %>
+                    </h3>
 
-            <% } %>
+                <% } else { %>
+
+                    <h3 title="<%= country.name.official %>">
+                        <%= country.name.common %>
+                    </h3>
+
+                <% } %>
+            </div>
+
+            <!-- CARDS - Columna 3 | Región, Capital -->
+            <div class="w-50 text-center text-sm text-neutral-300">
+
+                <p title="Lat/Long. <%= country.latlng %>.">
+                    Capital: <%= country.capital %>.
+                </p>
+                <p title="<%= country.subregion %>.">
+                    <%= country.continents %>.
+                </p>
+
+            </div>
+
+            <!-- CARDS - Columna 4 | Extensión, límites -->
+            <div class="w-50 text-center text-sm text-neutral-300">
+
+                <p title="Límites: <%= country.borders %>">
+                    Extensión: <%= country.area.toLocaleString('es-ES') %> km<sup>2</sup>.
+                </p>
+                <p title="Idiomas: <%= Object.keys(country.languages) %>">
+                    <%= country.population.toLocaleString('es-ES') %> habitantes.
+                </p>
+
+            </div>
+
         </div>
-
-        <div class="w-50 text-center text-sm text-neutral-300">
-            
-            <p title="<%= country.region %>">
-                <%= country.subregion %>.
-            </p>
-            
-            <p title="Lat/Long. <%= country.capitalInfo.latlng %>">
-                Capital: <%= country.capital %>
-            </p>
-
-        </div>
-
-        <div class="w-50 text-center text-sm text-neutral-300">
-            
-            <p title="Límites: <%= country.borders %>">
-                Extensión: <%= country.area %> km<sup>2</sup>.
-            </p>
-
-            <p title="Idiomas: <%= Object.keys(country.languages) %>">
-                <%= country.population %> habitantes.
-            </p>
-
-        </div>
-
-        
-    </div>
+    </a>
 
 <% }) %>
 

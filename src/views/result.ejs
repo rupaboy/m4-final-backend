@@ -1,0 +1,91 @@
+<!-- Contenedor principal del body -->
+<main class="grid bg-zinc-900 py-8 px-5 justify-center">
+
+    <div class="flex justify-end mb-4 leading-6 gap-4">
+        <a href="/api/countries/edit/<%= country._id %>"><button class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">✍
+            <p class="text-sm">editar</p></button></a>
+        <a href="/api/countries/remove/<%= country._id %>"><button class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">🗑
+            <p class="text-sm">borrar</p></button></a>
+    </div>
+
+    <div class="md:w-180 grid md:grid-cols-2 sm:w-150 sm:grid-cols-2 text-zinc-100 flex flex-wrap justify-center gap-3 items-center py-3 px-[5vw] border border-zinc-700 bg-zinc-800 rounded-lg">
+        
+        <div class="md:col-span-2 sm:col-span-2 mx-auto pt-7">
+            <img
+                class="text-center text-[7.2em] leading-20 rounded h-20 w-30 object-cover opacity-80"
+                src="<%= country.flags.svg %>"
+                title="<%= country.flags.alt %>"
+                alt="<%= country.flag %>">
+            </img>
+        </div>
+
+        <div class="md:col-span-2 sm:col-span-2 mx-auto pb-4">
+            <section class="flex">
+                <!--<label class="text-zinc-300">Nombre:&nbsp;</label>-->
+                <p class="leading-6 text-xl uppercase"><%= country.name.nativeName.spa.common %></p>
+            </section>    
+        </div>
+
+        <section class="flex">
+            <label class="text-zinc-300">Capital:&nbsp;</label>
+            <p><%= country.capital %></p>
+        </section>
+
+        <section class="flex">
+            <label class="text-zinc-300">Continentes:&nbsp;</label>
+            <p><%= country.continents %></p>
+        </section>
+
+        <% if ( (country.region ) && (country.region !== country.continents[0])) { %>
+            <section class="flex">
+                <label class="text-zinc-300">Region:&nbsp;</label>
+                <p><%= country.region %></p>
+            </section>
+        <% } %>
+
+        <% if ( (country.subregion ) && (country.subregion !== country.continents[0])) { %>
+            <section class="flex">
+                <label class="text-zinc-300">Sub-Region:&nbsp;</label>
+                <p><%= country.subregion %></p>
+            </section>
+        <% } %>
+
+        <section class="flex">
+            <label class="text-zinc-300">Lat/Long:&nbsp;</label>
+            <p><%= country.latlng %></p>
+        </section>
+
+        <% if ( country.borders.length !== 0) { %>
+            <section class="flex">
+                <label class="text-zinc-300">Límites:&nbsp;</label>
+                <p class="lowercase"><%= country.borders %></p>
+            </section>
+        <% } %>
+
+        <section class="flex">
+            <label class="text-zinc-300">Extensión:&nbsp;</label>
+            <p><%= country.area.toLocaleString('es-ES') %> km<sup>2</sup></p>
+        </section>
+
+        <section class="flex">
+            <label class="text-zinc-300">Población:&nbsp;</label>
+            <p><%= country.population.toLocaleString('es-ES') %></p>
+        </section>
+
+        <section class="flex">
+            <label class="text-zinc-300">Idiomas:&nbsp;</label>
+            <p><%= Object.keys(country.languages) %> </p>
+        </section>
+
+        <section class="flex">
+            <label class="text-zinc-300">Moneda:&nbsp;</label>
+            <p><%= Object.keys(country.currencies) %> </p>
+        </section>
+
+        <section class="flex">
+            <label class="text-zinc-300">Zona horaria:&nbsp;</label>
+            <p><%= country.timezones %> </p>
+        </section>
+
+    </div>
+</main>

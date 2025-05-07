@@ -13,36 +13,78 @@ export async function getAllCountriesController(req, res) {
     
     try {
         const countries = await getAllCountries();
+
+        // Inicializamos numero de países listados, area de extensión total y población total
         const listedCountriesNumber = countries.length;
+        let countriesTotalArea = 0
+        let countriesTotalPopulation = 0
+
+        // Inicializamos números de países con índice Gini, y variable destinada al Gini promedio
+        let countriesWithGini = 0
+        let countriesGiniAverage = 0
+        
+        //Por cada país...
+        countries.forEach((country)=>{
+            countriesTotalArea += country.area //...sumamos su área de extensión
+            countriesTotalPopulation += country.population //...sumamos su población
+
+            if (country.gini) { //Si existe el índice gini en ese país...
+                ++countriesWithGini //Incrementamos el número de países con índice Gini
+
+                const lastGini = country.gini[Object.keys(country.gini)[Object.keys(country.gini).length - 1]]
+                //Utilizando el último índice registrado en el array, y lo sumamos al total de Gini.
+                countriesGiniAverage += lastGini
+            }
+        })
+            //Obtenemos el promedio (índice total / países indizados)
+            countriesGiniAverage /= countriesWithGini
+
 
         res.status(200).render('dashboard', {
-
             title: `Dashboard - ${listedCountriesNumber} items`,
-            countries
-        })
+            countries,
+            listedCountriesNumber,
+            countriesTotalArea,
+            countriesTotalPopulation,
+            countriesWithGini,
+            countriesGiniAverage
+        }) //Pasamos las variables al render 'Dashboard'
         
     } catch (error) {
         res.status(500).send('500', error)
     }
 }
 
- 
+
 export async function getCountryByIdController(req, res) {
-    try {
-        const {id} = req.params;
-        const countries = await getCountryById(id);
         
-        if (!countries) {
-            return res.status(404).render('404')
+    const { id } = req.params
+
+    try {
+
+        const country = await getCountryById(id);
+
+        if (!country) {
+            return res.status(404).render('404', {
+                title: 'Not found'
+            })
         }
-        res.render('result', {countries});
+        res.status(200).render('result', {
+            title: `Result: ${country.name.nativeName.spa.common}`,
+            country
+        }
+            
+        );
     } catch (error) {
-        res.status(500).render('500', {error})
+        res.status(500).send('500', {error})
+        
     }
 }
 
+
 export async function addNewCountryController(req, res) {
-    res.render('addCountry' )
+        res.render('addCountry', {title: 'Agregar un país'})
+    
 }
 
 export async function editCountryController(req, res) {

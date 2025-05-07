@@ -1,5 +1,6 @@
 import Country from "../models/countryModel.mjs";
 import IRepository from '../repositories/IRepository.mjs';
+import { Types } from 'mongoose';
 
 class CountryRepository extends IRepository {
 
@@ -14,8 +15,10 @@ class CountryRepository extends IRepository {
         .lean() //Convierte a objeto javascript
     }
 
-    async getById(id) {;  //OK
-        return await Country.findById(id)
+    async getById(id) {
+        const objectId = Types.ObjectId.createFromHexString(id)
+        return await Country.findById(objectId).lean()
+        
     }
     
 //POST

@@ -1,5 +1,5 @@
 
-    import mongoose from "mongoose";
+    import mongoose, { trusted } from "mongoose";
 
 
     const countrySchema = new mongoose.Schema({
@@ -10,7 +10,7 @@
             },
     
             official: {
-                type: String, required: true 
+                type: String, required: false
             },
     
             nativeName: { 
@@ -31,15 +31,15 @@
         currencies: {
             type: Map, //Permite acceder a las sub-propiedades de claves dinánimas.
             of: {
-                name: { type: String, required: true }, 
-                symbol: { type: String, required: true },
+                name: { type: String, required: true },
+                symbol: { type: String, required: false },
                 _id: false
             },
             required: true
         },
     
-        capital: { type: [String], required: true },
-        region: { type: String, required: true },
+        capital: { type: [String], required: false },
+        region: { type: String, required: false },
         subregion: { type: String, required: false },
     
         languages: { 
@@ -74,12 +74,12 @@
         },
         
         fifa: { type: String, required: false }, 
-        timezones: { type: [String], required: false },
+        timezones: { type: [String], required: true },
         continents: { type: [String], required: true },
         
         flags: { // Imágenes de la bandera.
             png: { type: String, required: false },
-            svg: { type: String, required: false },
+            svg: { type: String, required: false, default: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/Jolly-roger.svg' },
             alt: { type: String, required: false } 
         },
         
@@ -89,8 +89,7 @@
             latlng: { type: [Number], required: false },
         },
         
-        creator: { type: String, required: true },
-        _id: false
+        creator: { type: String, required: false, default: 'Fernando Pais' },
         
     }, { timestamps: true });
 

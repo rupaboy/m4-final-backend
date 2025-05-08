@@ -9,7 +9,7 @@ export const validationHandler = (req, res, next) => {
         const errorMessages = errors.array().map(error => `${error.msg} (${errors.path})`).join(', ');
 
         
-        return res.send('400', errorMessages)
+        return res.send('400', errorMessages, {title: '400'})
     }
     next()
 };

@@ -32,18 +32,30 @@ export const countrySanitizer = () => [
         .trim()
         .escape()
         .customSanitizer( (value) => {
-            const array = value.split(',')
+
+            if (value.includes(',')) {
+                const array = value.split(',')
             
+                return array
+            }
+            const array = [value]
             return array
+
         }),
 
     body('countryContinents')
     .trim()
     .escape()
     .customSanitizer( (value) => {
-        const array = value.split(',')
+
+        if (value.includes(',')) {
+            const array = value.split(',')
         
+            return array
+        }
+        const array = [value]
         return array
+
     }),
 
     body('countryRegion')
@@ -58,18 +70,30 @@ export const countrySanitizer = () => [
     .trim()
     .escape()
     .customSanitizer( (value) => {
-        const array = value.split(',')
+
+        if (value.includes(',')) {
+            const array = value.split(',')
         
+            return array
+        }
+        const array = [value]
         return array
+
     }),
 
     body('countryLatLong')
     .trim()
     .escape()
     .customSanitizer( (value) => {
-        const array = value.split(',')
+
+        if (value.includes(',')) {
+            const array = value.split(',')
         
+            return array
+        }
+        const array = [value]
         return array
+
     }),
 
     body('countryArea')
@@ -84,18 +108,30 @@ export const countrySanitizer = () => [
     .trim()
     .escape()
     .customSanitizer( (value) => {
-        const array = value.split(',')
+
+        if (value.includes(',')) {
+            const array = value.split(',')
         
+            return array
+        }
+        const array = [value]
         return array
+
     }),
 
     body('countryCurrencies')
     .trim()
     .escape()
     .customSanitizer( (value) => {
-        const array = value.split(',')
+
+        if (value.includes(',')) {
+            const array = value.split(',')
         
+            return array
+        }
+        const array = [value]
         return array
+
     }),
 
     body('countryTimezones')

@@ -42,7 +42,10 @@ router.post( '/countries/new',
     postCountryController )
 
 //PUT
-router.put( '/countries/edit/:id', editCountryByIdController )
+router.put( '/countries/set/:id',
+    countrySanitizer(),
+    validationHandler,
+    editCountryByIdController )
 
 
 //DELETE

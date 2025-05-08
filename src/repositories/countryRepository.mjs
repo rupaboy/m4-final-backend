@@ -68,8 +68,11 @@ class CountryRepository extends IRepository {
 //PUT
     async editById(id, updatedCountry) {
 
-        const oldCountry = await Country.findById(id);
+
+
+        const oldCountry = await Country.findById(objectId);
         const newCountry = {}
+
 
         for (let atributo in updatedCountry) {
             if (updatedCountry[atributo] !== oldCountry[atributo]) {
@@ -81,9 +84,9 @@ class CountryRepository extends IRepository {
             { _id: id },
             { $set: newCountry},
             { returnDocument: 'after' }
-        )
+        ).lean()
     };
-
+    
 //DELETE
     async removeById(id) {
         return await Country.findByIdAndDelete(id)

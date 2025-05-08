@@ -172,20 +172,73 @@ export async function postCountryController(req, res) {
 //PUT
 export async function editCountryByIdController(req, res) {
     try {
-        const {id} = req.params
-        const updatedCountry = req.body
-    
+        
+        //Llama y refina los campos del cuerpo de la solicitud. 
+            //Llama al id de la ruta url
+            const {id} = req.params
+
+            //Si req.body.countryFlag es una string vacía, lo elimina.
+        if (req.body.countryFlag === '') {
+            delete req.body.countryFlag
+                                        //countryFlag: undefined.
+        } 
+
+        const {
+            countryFlag, // aunque sea undefined, el modelo agrega valor "default".
+            countryName,
+            countryCapitals,
+            countryContinents,
+            countryRegion,
+            countrySubRegion,
+            countryBorders,
+            countryLatLong,
+            countryArea,
+            countryPopulation,
+            countryLanguages,
+            countryCurrencies,
+            countryTimezones
+        } = req.body
+       
+
+        const objectCurrencies = countryCurrencies.reduce((acc, clave) =>{
+            acc[clave] = {}
+            return acc
+        }, {}); //Convierte el Array de currencies en un objeto
+
+        const objectLanguages = countryLanguages.reduce((acc, clave) =>{
+            acc[clave] = ''
+            return acc
+        }, {}); //Convierte el Array de languages en un objeto
+
+        
+        const updatedCountry = {
+            countryFlag,
+            countryName,
+            countryCapitals,
+            countryContinents,
+            countryRegion,
+            countrySubRegion,
+            countryBorders,
+            countryLatLong,
+            countryArea,
+            countryPopulation,
+            countryLanguages: objectLanguages,
+            countryCurrencies: objectCurrencies,
+            countryTimezones,
+        };
+        
+            //Petición a repositorio de Mongoose
         const country = await editCountryById(id, updatedCountry)
         
         if (country.length === 0) {
             
-            return res.status(404).render('404')
+            return res.status(404).render('404', { title: '404'})
         }
-        res.status(200).redirect(`/api/countries/${country._id}`);
+        res.status(200).redirect(`/api/countries/${country._id}`, {title: 'hello'});
 
     } catch (error) {
         
-        res.status(500).render('500')
+        res.status(500).render('500', { title: '500'})
     }
 }
 

@@ -91,32 +91,80 @@ export async function editCountryController(req, res) {
     const {id} = req.params;
     const country = await getCountryById(id);
 
-    res.render('editCountry', { country } )
+    res.render('editCountry', { title: `Editar ${country.name.nativeName.spa.common}`, country } )
 }
 
 export async function removeCountryController(req, res) {
     const {id} = req.params;
     const country = await getCountryById(id);
     
-    res.render('removeCountry', { country } )
+    res.render('removeCountry', { title: `Borrar ${country.name.nativeName.spa.common}`, country } )
 }
 
 
 //POST
 export async function postCountryController(req, res) {
     try {
-        const {countryData} = req.body
-        
-        const country = await postCountry(countryData)
+
+        if (req.body.countryFlag === '') {
+            delete req.body.countryFlag
+        } //Si req.body.countryFlag es una string vacía, lo elimina.
+
+        const {
+            countryFlag,
+            countryName,
+            countryCapitals,
+            countryContinents,
+            countryRegion,
+            countrySubRegion,
+            countryBorders,
+            countryLatLong,
+            countryArea,
+            countryPopulation,
+            countryLanguages,
+            countryCurrencies,
+            countryTimezones
+        } = req.body
+
+        const objectCurrencies = countryCurrencies.reduce((acc, clave) =>{
+            acc[clave] = {}
+            return acc
+        }, {}); //Convierte el Array de currencies en un objeto
+
+        const objectLanguages = countryLanguages.reduce((acc, clave) =>{
+            acc[clave] = ''
+            return acc
+        }, {}); //Convierte el Array de languages en un objeto
+
+        const country = await postCountry(
+            countryFlag,
+            countryName,
+            countryCapitals,
+            countryContinents,
+            countryRegion,
+            countrySubRegion,
+            countryBorders,
+            countryLatLong,
+            countryArea,
+            countryPopulation,
+            objectLanguages,
+            objectCurrencies,
+            countryTimezones
+        )
+
         if (country.length === 0) {
             
-            return res.status(404).render('404')
+            return res.status(404).render('404', {
+                title: '404'
+            })
         }
         res.status(200).redirect(`/api/countries/${country._id}`);
 
     } catch (error) {
         
-        res.status(500).render('500')
+        res.status(500).render('500', {
+            title: '500'
+        })
     }
 }
 
@@ -146,11 +194,7 @@ export async function removeCountryByIdController(req, res) {
     try {
         const {id} = req.params;
         const country = await removeCountryById(id);
-        //console.log(Country Borrado)
-        if (country.lenght === 0) {
-            
-            return res.status(404).render('404')
-        }
+        
         res.status(200).redirect(`/api/countries`);
 
     } catch (error) {

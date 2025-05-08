@@ -23,13 +23,46 @@ class CountryRepository extends IRepository {
     
 //POST
     async post(
-        countryData
+        countryFlag,
+        countryName,
+        countryCapitals,
+        countryContinents,
+        countryRegion,
+        countrySubRegion,
+        countryBorders,
+        countryLatLong,
+        countryArea,
+        countryPopulation,
+        objectLanguages,
+        objectCurrencies,
+        countryTimezones
         ) { const country = new Country(
             {
-                creador: countryData
+                flags: {
+                    svg: countryFlag
+                },
+                name: {
+                    common: countryName,
+                    nativeName: {
+                        spa: {
+                            common: countryName
+                        }
+                    }
+                },
+                capital: countryCapitals,
+                continents: countryContinents,
+                region: countryRegion,
+                subregion: countrySubRegion,
+                borders: countryBorders,
+                latlng: countryLatLong,
+                area: countryArea,
+                population: countryPopulation,
+                languages: objectLanguages,
+                currencies: objectCurrencies,
+                timezones: countryTimezones,
             })
             //console.log(country)
-            return await country.save();
+            return await country.save()
         }
 
 //PUT

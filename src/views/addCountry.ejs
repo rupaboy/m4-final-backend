@@ -1,86 +1,101 @@
 <!-- Contenedor principal del body -->
-<main class="grid bg-zinc-900 py-8 px-5 justify-center">
+<form
+    action="/api/countries/new" method="POST"
+    class="grid bg-zinc-900 py-8 px-5 justify-center">
 
     <div class="flex justify-end mb-4 leading-6 gap-4">
-        <a href="/api/countries/edit/"><button class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">⮠
+        <a><button type="submit" class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">
+            ⮠
             <p class="text-sm">submit</p></button></a>
-        <a href="/api/countries/remove/"><button class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">↶
-            <p class="text-sm">volver</p></button></a>
+        <a><button type="reset" class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">
+            ↺
+            <p class="text-sm">reset</p></button></a>
+        <a class="pt-1 cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100"
+            href="/api/countries">
+            ↶
+            <p class="text-sm">volver</p></a>
     </div>
 
-    <div class="md:w-180 grid md:grid-cols-2 sm:w-150 sm:grid-cols-2 text-zinc-100 flex flex-wrap justify-center gap-3 items-center py-3 px-[5vw] border border-zinc-700 bg-zinc-800 rounded-lg">
+    <div class="pt-7 md:w-180 grid md:grid-cols-2 sm:grid-cols-1 text-zinc-100 gap-3 items-center py-3 px-[5vw] border border-zinc-700 bg-zinc-800 rounded-lg">
         
-        <div class="md:col-span-2 sm:col-span-2 mx-auto pt-7">
-            <img
-                class="text-center text-[7.2em] leading-20 rounded h-20 w-30 object-cover opacity-80"
-                src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fb%2Fb0%2FNo_flag.svg%2F300px-No_flag.svg.png&f=1&nofb=1&ipt=ef89ccacf4a009c73f10b77473a3418edfdfbd7dbea414633051a000ca061b72"
-                title=""
-                alt="">
-            </img>
-        </div>
-
-        <div class="md:col-span-2 sm:col-span-2 mx-auto pb-4">
             <section class="flex">
-                <label class="text-zinc-300">Nombre:&nbsp;</label>
-                <input class="leading-6 text-xl uppercase"></input>
-            </section>    
-        </div>
-
-        <section class="flex">
-            <label class="text-zinc-300">Capital:&nbsp;</label>
-            <input></input>
-        </section>
-
-        <section class="flex">
-            <label class="text-zinc-300">Continentes:&nbsp;</label>
-            <input> .continents</input>
-        </section>
-
-            <section class="flex">
-                <label class="text-zinc-300">Region:&nbsp;</label>
-                <input></input>
-            </section>
-         
-            <section class="flex">
-                <label class="text-zinc-300">Sub-Region:&nbsp;</label>
-                <input></input>
-            </section>
-         
-
-        <section class="flex">
-            <label class="text-zinc-300">Lat/Long:&nbsp;</label>
-            <input></input>
-        </section>
-
-            <section class="flex">
-                <label class="text-zinc-300">Límites:&nbsp;</label>
-                <input></input>
+                <img
+                class="mr-4 ml-auto rounded h-7 w-10 object-cover opacity-80"
+                src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fb%2Fb0%2FNo_flag.svg%2F300px-No_flag.svg.png&f=1&nofb=1&ipt=ef89ccacf4a009c73f10b77473a3418edfdfbd7dbea414633051a000ca061b72">
+                </img>
+                <label for="countryFlag" class="text-zinc-300 text-center">* Bandera (url externa):&nbsp;</label>
             </section>
 
-        <section class="flex">
-            <label class="text-zinc-300">Extensión:&nbsp;</label>
-            <input></input>
-        </section>
+            <input name="countryFlag" type="url" placeholder="Ejemplos: flagpedia.net/index" id="countryFlag" class="border-b"></input>
 
-        <section class="flex">
-            <label class="text-zinc-300">Población:&nbsp;</label>
-            <input></input>
-        </section>
+            <label for="countryName" class="text-zinc-300 ml-auto">Nombre:&nbsp;</label>
+            <input name="countryName" required type="text" maxlength="40" minlength="3" id="countryName" class="border-b leading-6 text-xl uppercase"></input>
+        
+            <label for="countryCapitals" class="text-zinc-300 ml-auto">Capitales (A, B,...):&nbsp;</label>
+            <input name="countryCapitals" required type="text" maxlength="40" minlength="3" id="countryCapitals" class="border-b"></input>
+        
+            <label for="countryContinents" class="ml-auto text-zinc-300">Continentes (A, B,...):&nbsp;</label>
+            <input name="countryContinents" required type="text" maxlength="40" minlength="3" id="countryContinents" class="border-b"></input>
+            
+            <label for="countryRegion" class="ml-auto text-zinc-300">* Region:&nbsp;</label>
+            <input name="countryRegion" type="text" maxlength="40" minlength="3" id="countryRegion" class="border-b"></input>
+        
+            <label for="countrySubRegion" class="ml-auto text-zinc-300">* Sub-Region:&nbsp;</label>
+            <input name="countrySubRegion" type="text" maxlength="40" minlength="3" id="countrySubRegion" class="border-b"></input>
 
-        <section class="flex">
-            <label class="text-zinc-300">Idiomas:&nbsp;</label>
-            <input></input>
-        </section>
+            <label for="countryBorders" class="ml-auto text-zinc-300">* Límites (A, B,...):&nbsp;</label>
+            <input name="countryBorders" type="text" maxlength="40" minlength="3" id="countryBorders" class="border-b"></input>
+        
+            <label for="countryLatLong" class="ml-auto text-zinc-300">Lat(-90/90), Long(-180/180):&nbsp;</label>
+            <input name="countryLatLong" required type="string" minlength="3" maxlength="22" id="countryLatLong" class="border-b"></input>
 
-        <section class="flex">
-            <label class="text-zinc-300">Moneda:&nbsp;</label>
-            <input></input>
-        </section>
+            <label for="countryArea" class="ml-auto text-zinc-300">Area de extensión (km<sup>2</sup>):&nbsp;</label>
+            <input name="countryArea" required type="number" id="countryArea" min="0.1" step="0.1" max="25000000" class="border-b"></input>
+        
+            <label for="countryPopulation" class="ml-auto text-zinc-300">Población:&nbsp;</label>
+            <input name="countryPopulation" required type="number" min="0" max="5000000000" id="countryPopulation" class="border-b"></input>
+        
+            <label for="countryLanguages" class="ml-auto text-zinc-300">Idiomas (A, B,...):&nbsp;</label>
+            <input name="countryLanguages" required type="text" maxlength="40" minlength="3" id="countryLanguages" class="border-b"></input>
+        
+            <label for="countryCurrencies" class="ml-auto text-zinc-300">Monedas (A, B,...):&nbsp;</label>
+            <input name="countryCurrencies" required type="text" maxlength="40" minlength="3" id="countryCurrencies" class="border-b"></input>
+    
+            <label for="countryTimezones" class="ml-auto text-zinc-300">Zona horaria:&nbsp;</label>
+            
+                <select required name="countryTimezones" id="countryTimezones">
+                    <option selected disabled>Seleccionar</option>
 
-        <section class="flex">
-            <label class="text-zinc-300">Zona horaria:&nbsp;</label>
-            <input></input>
-        </section>
-
+                    <option value="UTC -12:00">Baker Island (UTC -12:00)</option>
+                    <option value="UTC -11:00">Pago Pago (UTC -11:00)</option>
+                    <option value="UTC -10:00">Honolulu (UTC -10:00)</option>
+                    <option value="UTC -09:00">Anchorage (UTC -9:00)</option>
+                    <option value="UTC -08:00">Los Angeles (UTC -8:00)</option>
+                    <option value="UTC -07:00">Denver (UTC -7:00)</option>
+                    <option value="UTC -06:00">Mexico City (UTC -6:00)</option>
+                    <option value="UTC -05:00">Bogotá (UTC -5:00)</option>
+                    <option value="UTC -04:00">Caracas (UTC -4:00)</option>
+                    <option value="UTC -03:00">Buenos Aires (UTC -3:00)</option>
+                    <option value="UTC -02:00">South Georgia (UTC -2:00)</option>
+                    <option value="UTC -01:00">Azores (UTC -1:00)</option>
+                    <option value="UTC +00:00">Londres (UTC +0:00)</option>
+                    <option value="UTC +01:00">Madrid (UTC +1:00)</option>
+                    <option value="UTC +02:00">El Cairo (UTC +2:00)</option>
+                    <option value="UTC +03:00">Moscú (UTC +3:00)</option>
+                    <option value="UTC +04:00">Dubai (UTC +4:00)</option>
+                    <option value="UTC +05:00">Karachi (UTC +5:00)</option>
+                    <option value="UTC +06:00">Dhaka (UTC +6:00)</option>
+                    <option value="UTC +07:00">Bangkok (UTC +7:00)</option>
+                    <option value="UTC +08:00">Pekín (UTC +8:00)</option>
+                    <option value="UTC +09:00">Tokio (UTC +9:00)</option>
+                    <option value="UTC +10:00">Sídney (UTC +10:00)</option>
+                    <option value="UTC +11:00">Islas Salomón (UTC +11:00)</option>
+                    <option value="UTC +12:00">Fiyi (UTC +12:00)</option>
+                    <option value="UTC +13:00">Samoa (UTC +13:00)</option>
+                    <option value="UTC +14:00">Kiritimati (UTC +14:00)</option>
+                  </select>
+                  
+            <p class="mt-4 col-span-2 text-sm mx-auto">* <em>Campos opcionales</em>.</p>
+    
     </div>
-</main>
+</form>

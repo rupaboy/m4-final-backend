@@ -24,21 +24,21 @@
             }
         },
     
-        independent: { type: Boolean, required: false},
+        independent: { type: Boolean, required: false, default: true },
         status: { type: String, required: false, default: 'officially-assigned' },
         unMember: { type: Boolean, required: false, default: false },
         
         currencies: {
             type: Map, //Permite acceder a las sub-propiedades de claves dinánimas.
             of: {
-                name: { type: String, required: true },
-                symbol: { type: String, required: false },
+                name: { type: String, required: false },
+                symbol: { type: String, required: false, default: '$' },
                 _id: false
             },
             required: true
         },
     
-        capital: { type: [String], required: false },
+        capital: { type: [String], required: true },
         region: { type: String, required: false },
         subregion: { type: String, required: false },
     
@@ -53,7 +53,7 @@
         landlocked: { type: Boolean, required: false },
         borders: { type: [String], required: false },
         area: { type: Number, required: true },
-        flag: { type: String, required: false }, 
+        flag: { type: String, required: false },
         
         maps: { 
             googleMaps: {
@@ -79,7 +79,7 @@
         
         flags: { // Imágenes de la bandera.
             png: { type: String, required: false },
-            svg: { type: String, required: false, default: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/Jolly-roger.svg' },
+            svg: { type: String, required: false, default: 'https://upload.wikimedia.org/wikipedia/commons/5/5d/Jolly-Roger3.svg' },
             alt: { type: String, required: false } 
         },
         

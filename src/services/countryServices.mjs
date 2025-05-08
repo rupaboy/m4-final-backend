@@ -10,8 +10,36 @@ export async function getCountryById(id){
 }
 
 //POST
-export async function postCountry( countryData ) {
-    return await CountryRepository.post( countryData )
+export async function postCountry(
+    countryFlag,
+    countryName,
+    countryCapitals,
+    countryContinents,
+    countryRegion,
+    countrySubRegion,
+    countryBorders,
+    countryLatLong,
+    countryArea,
+    countryPopulation,
+    objectLanguages,
+    objectCurrencies,
+    countryTimezones
+    ) {
+    return await CountryRepository.post(
+        countryFlag,
+        countryName,
+        countryCapitals,
+        countryContinents,
+        countryRegion,
+        countrySubRegion,
+        countryBorders,
+        countryLatLong,
+        countryArea,
+        countryPopulation,
+        objectLanguages,
+        objectCurrencies,
+        countryTimezones
+    )
 }
 
 // PUT

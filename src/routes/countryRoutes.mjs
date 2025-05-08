@@ -2,7 +2,11 @@ import express from 'express';
 
 //Express-Validator
 import { validationHandler } from '../validators/validationHandler.mjs'
-//Agregar validators.
+
+//Validators.
+import {
+    countrySanitizer,
+} from '../validators/countrySanitizer.mjs'
 
 //Controllers
 import {
@@ -32,7 +36,10 @@ router.get( '/countries/remove/:id', removeCountryController )
 router.get( '/countries/:id', getCountryByIdController )
 
 //POST
-router.post( '/countries/add', postCountryController )
+router.post( '/countries/new',
+    countrySanitizer(),
+    validationHandler,
+    postCountryController )
 
 //PUT
 router.put( '/countries/edit/:id', editCountryByIdController )

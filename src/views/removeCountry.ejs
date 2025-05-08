@@ -1,13 +1,20 @@
 <!-- Contenedor principal del body -->
-<main class="grid bg-zinc-900 py-8 px-5 justify-center">
+<form
+    method="POST"
+    action="/api/countries/remove/<%= country._id %>?_method=DELETE"
+    class="grid bg-zinc-900 py-8 px-5 justify-center">
 
     <div class="flex justify-end mb-4 leading-6 gap-4">
-        <a href="/api/countries/edit/<%= country._id %>"><button class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">✍
-            <p class="text-sm">editar</p></button></a>
-        <a href="/api/countries/remove/<%= country._id %>"><button class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">🗑
-            <p class="text-sm">borrar</p></button></a>
-        <a href="/api/countries"><button class="cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">↶
-            <p class="text-sm">volver</p></button></a>
+
+        <p class="mt-2 col-span-2 text-white text-sm ml-auto p-2 rounded-sm"><u>Advertencia</u>: Se eliminará el elemento: <%= country.name.nativeName.spa.common %>.</p>
+
+        <button type="submit" class="cursor-pointer rounded-lg w-14 h-14 bg-red-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100">
+            x
+            <p class="text-sm">borrar</p></button>
+        <a class="pt-1 cursor-pointer rounded-lg w-14 h-14 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-[2em] text-center text-stone-300 hover:text-stone-100"
+        href="/api/countries/<%= country._id %>">
+        ↶
+        <p class="text-sm">volver</p></a>
     </div>
 
     <div class="md:w-180 grid md:grid-cols-2 sm:w-150 sm:grid-cols-2 text-zinc-100 flex flex-wrap justify-center gap-3 items-center py-3 px-[5vw] border border-zinc-700 bg-zinc-800 rounded-lg">
@@ -76,18 +83,18 @@
 
         <section class="flex">
             <label class="text-zinc-300">Idiomas:&nbsp;</label>
-            <p><%= Object.keys(country.languages) %> </p>
+            <p><%= Object.keys(country.languages) %></p>
         </section>
 
         <section class="flex">
             <label class="text-zinc-300">Monedas:&nbsp;</label>
-            <p><%= Object.keys(country.currencies) %> </p>
+            <p><%= Object.keys(country.currencies) %></p>
         </section>
 
         <section class="flex">
             <label class="text-zinc-300">Zona horaria:&nbsp;</label>
-            <p><%= country.timezones[0] %> </p>
+            <p><%= country.timezones[0] %></p>
         </section>
 
     </div>
-</main>
+</form>

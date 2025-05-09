@@ -3,6 +3,7 @@ import {body} from 'express-validator';
 export const countryValidations = () => [
 
     body('countryFlag')
+        .optional({ checkFalsy: true })    
         .trim()
         .isURL({ require_protocol: true }).withMessage('La URL es invalida.')
         .isLength({ min: 21, max: 120 }).withMessage('La URL de la bandera admite entre 21 y 120 caractéres.'),
@@ -32,10 +33,12 @@ export const countryValidations = () => [
         .isLength({ min: 3, max: 90 }).withMessage('El país debe situarse en al menos un continente.'),
     
     body('countryRegion')
+        .optional({ checkFalsy: true })
         .trim()
         .isLength({ min: 3, max: 90 }).withMessage('El nombre de la región admite entre 3 y 60 caractéres.'),
     
     body('countrySubRegion')
+        .optional({ checkFalsy: true })
         .trim()
         .isLength({ min: 3, max: 90 }).withMessage('El nombre de la sub-Region admite entre 3 y 60 caractéres.'),
 
@@ -80,14 +83,16 @@ export const countryValidations = () => [
         .isArray().withMessage('Los índices Gini son un array. Su funcionalidad está en desarrollo. Disculpe.'),
 */
     body('countryGiniYearLatest.*')
+        .optional({ checkFalsy: true })
         .isNumeric().withMessage('El año del informe Gini debe ser numérico.')
-        .isFloat().withMessage('El número de año del índice Gini debe expresarse como un valor positivo')
-        .isInt().withMessage('El año del informe Gini debe expresarse como un valor entero (no-decimal)'),
+        .isFloat().optional().withMessage('El número de año del índice Gini debe expresarse como un valor positivo')
+        .isInt().optional().withMessage('El año del informe Gini debe expresarse como un valor entero (no-decimal)'),
 
     body('countryGiniValueLatest.*')
+        .optional({ checkFalsy: true })
         .isNumeric().withMessage('El año del informe Gini debe ser numérico.')
-        .isFloat().withMessage('El número de año del índice Gini debe expresarse como un valor positivo')
-        .isInt({ min: 0, max: 100}).withMessage('El año del informe Gini debe expresarse como un valor entre 0 y 100 no-decimal'),
+        .isFloat().optional().withMessage('El número de año del índice Gini debe expresarse como un valor positivo')
+        .isInt({ min: 0, max: 100}).optional().withMessage('El año del informe Gini debe expresarse como un valor entre 0 y 100 no-decimal'),
 
     body('countryTimezones')
         .isArray().withMessage('Las zonas horarias son un array. Su funcionalidad está en desarrollo. Disculpe.'),
@@ -146,6 +151,8 @@ export const countrySanitizer = () => [
     .escape()
     .customSanitizer( (value) => {
 
+        value = value.replace(/\s+/g, '').toUpperCase()
+
         if (value.includes(',')) {
             const array = value.split(',')
         
@@ -162,7 +169,7 @@ export const countrySanitizer = () => [
     .customSanitizer( (value) => {
 
         if (value.includes(',')) {
-            const array = value.split(',')
+            const array = value.replace(/\s+/g, '').split(',')
         
             return array
         }
@@ -184,8 +191,10 @@ export const countrySanitizer = () => [
     .escape()
     .customSanitizer( (value) => {
 
+        value = value.toLowerCase()
+
         if (value.includes(',')) {
-            const array = value.split(',')
+            const array = value.replace(/\s+/g, '').split(',')
         
             return array
         }
@@ -199,8 +208,10 @@ export const countrySanitizer = () => [
     .escape()
     .customSanitizer( (value) => {
 
+        value = value.toUpperCase()
+
         if (value.includes(',')) {
-            const array = value.split(',')
+            const array = value.replace(/\s+/g, '').split(',')
         
             return array
         }

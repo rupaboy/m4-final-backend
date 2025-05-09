@@ -37,7 +37,7 @@ app.use('/api/', router);
 
 //Manejo de errores para rutas no encontradas
 app.use((req,res,next) => {
-    res.render('404', {title: 'hello world'})
+    res.render('404', {title: 'Página no encontrada'})
 });
 
 //Conectar a MongoDB

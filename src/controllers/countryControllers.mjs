@@ -51,7 +51,7 @@ export async function getAllCountriesController(req, res) {
         }) //Pasamos las variables al render 'Dashboard'
         
     } catch (error) {
-        res.status(500).send('500', error)
+        res.status(500).render('500', {title: 'Error de datos del servidor', error})
     }
 }
 
@@ -76,7 +76,7 @@ export async function getCountryByIdController(req, res) {
             
         );
     } catch (error) {
-        res.status(500).send('500', {error})
+        res.status(500).render('500', {title: 'Error de datos del servidor', error})
         
     }
 }
@@ -170,9 +170,7 @@ export async function postCountryController(req, res) {
 
     } catch (error) {
         
-        res.status(500).render('500', {
-            title: '500'
-        })
+        res.status(500).render('500', {title: 'Error de datos del servidor', error})
     }
 }
 
@@ -248,7 +246,7 @@ export async function editCountryByIdController(req, res) {
 
     } catch (error) {
         
-        res.status(500).render('500', { title: '500'})
+        res.status(500).render('500', {title: 'Error de datos del servidor', error})
     }
 }
 
@@ -262,7 +260,7 @@ export async function removeCountryByIdController(req, res) {
 
     } catch (error) {
         
-        res.status(500).render('500')
+        res.status(500).render('500', {title: 'Error de datos del servidor', error})
     }
 }
 
@@ -274,6 +272,6 @@ export async function removeAllCountriesController(req, res) {
 
         res.status(200).json({ message: `${deletionResult.deletedCount} paises eliminados correctamente.` })
     } catch (error) {
-        res.status(500).send('500', error)
+        res.status(500).render('500', {title: 'Error de datos del servidor', error})
     }
 }

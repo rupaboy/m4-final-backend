@@ -3,10 +3,10 @@
 
     <div
         title="Totales"
-        class="border border-indigo-900 bg-indigo-950 flex flex-wrap text-center text-sm text-neutral-300 justify-center gap-3 items-center py-3 px-[5vw] rounded-lg">
+        class="border border-neutral-700 bg-emerald-900 flex flex-wrap text-zinc-100 font-extrablack text-center text-sm justify-center gap-3 items-center py-3 px-[5vw] rounded-lg">
 
         <!-- Totales. Columna 1 | Cantidad de paises listados -->
-        <div class="w-50 text-center text-sm text-neutral-300">
+        <div class="w-50 text-center text-sm">
             <p>
                 Listados:
             </p>
@@ -16,7 +16,7 @@
         </div>
 
         <!-- Totales. Columna 2 | Cantidad de países con índices GINI, Promedio total GINI -->
-        <div class="w-50 text-center text-sm text-neutral-300">
+        <div class="w-50 text-center text-sm">
             <p>
                 GINI (<%= countriesWithGini.toLocaleString('es-ES') %> países):
             </p>
@@ -26,9 +26,9 @@
         </div>
 
         <!-- Totales. Columna 3 | Extensión total, Total de habitantes -->
-        <div class="w-50 text-center text-sm text-neutral-300">
+        <div class="w-50 text-center text-sm">
             <p>
-                Area total: <%= countriesTotalArea.toLocaleString('es-ES') %> km<sup>2</sup>.
+                Total: <%= countriesTotalArea.toLocaleString('es-ES') %> km<sup>2</sup>.
             </p>
             <p>
                 <%= countriesTotalPopulation.toLocaleString('es-ES') %> habitantes.
@@ -72,10 +72,11 @@
             <!-- CARDS - Columna 3 | Región, Capital -->
             <div class="w-50 text-center text-sm text-neutral-300">
 
-                <p title="Lat/Long. <%= country.latlng %>.">
+            
+                <p title="<%= country.gini && Object.keys(country.gini).length ? `GINI: ${Object.keys(country.gini)[Object.keys(country.gini).length - 1]}: ${country.gini[Object.keys(country.gini)[Object.keys(country.gini).length - 1]]}` : 's/Gini' %>">
                     Capital: <%= country.capital %>.
                 </p>
-                <p title="<%= country.subregion %>.">
+                <p title="Lat/Long: <%= country.latlng %>">
                     <%= country.continents %>.
                 </p>
 

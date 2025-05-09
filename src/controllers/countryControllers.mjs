@@ -7,7 +7,6 @@ import {
     removeAllCountries,
 } from '../services/countryServices.mjs';
 
-
 //GET
 export async function getAllCountriesController(req, res) {
     
@@ -25,6 +24,7 @@ export async function getAllCountriesController(req, res) {
         
         //Por cada país...
         countries.forEach((country)=>{
+            
             countriesTotalArea += country.area //...sumamos su área de extensión
             countriesTotalPopulation += country.population //...sumamos su población
 
@@ -110,7 +110,37 @@ export async function postCountryController(req, res) {
             delete req.body.countryFlag
         } //Si req.body.countryFlag es una string vacía, lo elimina.
 
+        const currencies = req.body.countryCurrencies;
+        const languages = req.body.countryLanguages;
+        
+        const countryCurrencies = currencies.reduce((acc, clave) =>{
+            acc[clave] = {}
+            return acc
+        }, {}); //Convierte el Array de currencies en un objeto
+
+        const countryLanguages = languages.reduce((acc, clave) =>{
+            acc[clave] = ''
+            return acc
+        }, {}); //Convierte el Array de languages en un objeto
+
+
         const {
+            countryFlag,
+            countryName,
+            countryCapitals,
+            countryContinents,
+            countryRegion,
+            countrySubRegion,
+            countryBorders,
+            countryLatLong,
+            countryArea,
+            countryPopulation,
+            countryGiniYearLatest,
+            countryGiniValueLatest,
+            countryTimezones
+        } = req.body
+
+        const newCountry = {
             countryFlag,
             countryName,
             countryCapitals,
@@ -123,34 +153,12 @@ export async function postCountryController(req, res) {
             countryPopulation,
             countryLanguages,
             countryCurrencies,
+            countryGiniYearLatest,
+            countryGiniValueLatest,
             countryTimezones
-        } = req.body
+        }
 
-        const objectCurrencies = countryCurrencies.reduce((acc, clave) =>{
-            acc[clave] = {}
-            return acc
-        }, {}); //Convierte el Array de currencies en un objeto
-
-        const objectLanguages = countryLanguages.reduce((acc, clave) =>{
-            acc[clave] = ''
-            return acc
-        }, {}); //Convierte el Array de languages en un objeto
-
-        const country = await postCountry(
-            countryFlag,
-            countryName,
-            countryCapitals,
-            countryContinents,
-            countryRegion,
-            countrySubRegion,
-            countryBorders,
-            countryLatLong,
-            countryArea,
-            countryPopulation,
-            objectLanguages,
-            objectCurrencies,
-            countryTimezones
-        )
+        const country = await postCountry(newCountry)
 
         if (country.length === 0) {
             
@@ -173,68 +181,70 @@ export async function postCountryController(req, res) {
 export async function editCountryByIdController(req, res) {
     try {
         
-        //Llama y refina los campos del cuerpo de la solicitud. 
+            
             //Llama al id de la ruta url
             const {id} = req.params
+            const flag = req.body.countryFlag
+            if (flag === '') {
+                req.body.countryFlag = 'https://upload.wikimedia.org/wikipedia/commons/5/5d/Jolly-Roger3.svg'
+            }
 
-            //Si req.body.countryFlag es una string vacía, lo elimina.
-        if (req.body.countryFlag === '') {
-            delete req.body.countryFlag
-                                        //countryFlag: undefined.
-        } 
+            const currencies = req.body.countryCurrencies;
+            const languages = req.body.countryLanguages;
+            
+            const countryCurrencies = currencies.reduce((acc, clave) =>{
+                acc[clave] = {}
+                return acc
+            }, {}); //Convierte el Array de currencies en un objeto
+    
+            const countryLanguages = languages.reduce((acc, clave) =>{
+                acc[clave] = ''
+                return acc
+            }, {}); //Convierte el Array de languages en un objeto
+    
+            //console.log(flag)
+                        //Si req.body.countryFlag es una string vacía, lo elimina.
+            const {
+                countryFlag,
+                countryName,
+                countryCapitals,
+                countryContinents,
+                countryRegion,
+                countrySubRegion,
+                countryBorders,
+                countryLatLong,
+                countryArea,
+                countryPopulation,
+                countryGiniYearLatest,
+                countryGiniValueLatest,
+                countryTimezones
+            } = req.body
 
-        const {
-            countryFlag, // aunque sea undefined, el modelo agrega valor "default".
-            countryName,
-            countryCapitals,
-            countryContinents,
-            countryRegion,
-            countrySubRegion,
-            countryBorders,
-            countryLatLong,
-            countryArea,
-            countryPopulation,
-            countryLanguages,
-            countryCurrencies,
-            countryTimezones
-        } = req.body
-       
-
-        const objectCurrencies = countryCurrencies.reduce((acc, clave) =>{
-            acc[clave] = {}
-            return acc
-        }, {}); //Convierte el Array de currencies en un objeto
-
-        const objectLanguages = countryLanguages.reduce((acc, clave) =>{
-            acc[clave] = ''
-            return acc
-        }, {}); //Convierte el Array de languages en un objeto
-
+            const updatedCountry = {
+                countryFlag,
+                countryName,
+                countryCapitals,
+                countryContinents,
+                countryRegion,
+                countrySubRegion,
+                countryBorders,
+                countryLatLong,
+                countryArea,
+                countryPopulation,
+                countryLanguages,
+                countryCurrencies,
+                countryGiniYearLatest,
+                countryGiniValueLatest,
+                countryTimezones,
+            }
         
-        const updatedCountry = {
-            countryFlag,
-            countryName,
-            countryCapitals,
-            countryContinents,
-            countryRegion,
-            countrySubRegion,
-            countryBorders,
-            countryLatLong,
-            countryArea,
-            countryPopulation,
-            countryLanguages: objectLanguages,
-            countryCurrencies: objectCurrencies,
-            countryTimezones,
-        };
-        
-            //Petición a repositorio de Mongoose
         const country = await editCountryById(id, updatedCountry)
         
         if (country.length === 0) {
             
-            return res.status(404).render('404', { title: '404'})
+            return res.status(404).render('404', {title: '404'})
         }
-        res.status(200).redirect(`/api/countries/${country._id}`, {title: 'hello'});
+        res.status(200).redirect(`/api/countries/${country._id}`);
 
     } catch (error) {
         

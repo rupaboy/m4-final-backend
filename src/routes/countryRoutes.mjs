@@ -6,7 +6,8 @@ import { validationHandler } from '../validators/validationHandler.mjs'
 //Validators.
 import {
     countrySanitizer,
-} from '../validators/countrySanitizer.mjs'
+    countryValidations
+} from '../validators/countriesValidationHelpers.mjs'
 
 //Controllers
 import {
@@ -38,12 +39,14 @@ router.get( '/countries/:id', getCountryByIdController )
 //POST
 router.post( '/countries/new',
     countrySanitizer(),
+    countryValidations(),
     validationHandler,
     postCountryController )
 
 //PUT
 router.put( '/countries/set/:id',
     countrySanitizer(),
+    countryValidations(),
     validationHandler,
     editCountryByIdController )
 

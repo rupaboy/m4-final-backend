@@ -61,6 +61,13 @@
             <label for="countryCurrencies" class="ml-auto text-zinc-300">Monedas (A, B,...):&nbsp;</label>
             <input name="countryCurrencies" required type="text" maxlength="40" minlength="3" id="countryCurrencies" class="border-b"></input>
     
+
+            <label for="countryGini" class="ml-auto text-zinc-300">Índice Gini:&nbsp;</label>
+            <section class="grid grid-cols-2">
+                <input name="countryGiniYearLatest" required type="number" min="1912" max="2200" id="countryGini" class="border-b"></input>
+                <input name="countryGiniValueLatest" required type="number" min="0" max="100" id="countryGini" class="border-b"></input>
+            </section>
+
             <label for="countryTimezones" class="ml-auto text-zinc-300">Zona horaria:&nbsp;</label>
             
                 <select required name="countryTimezones" id="countryTimezones">

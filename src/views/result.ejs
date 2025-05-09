@@ -85,6 +85,19 @@
         </section>
 
         <section class="flex">
+            <label class="text-zinc-300">Índice Gini:&nbsp;</label>
+            <p>
+                <% if (country.gini && Object.keys(country.gini).length) { %>
+                  <%= Object.keys(country.gini)[Object.keys(country.gini).length - 1] %>: 
+                  <%= country.gini[Object.keys(country.gini)[Object.keys(country.gini).length - 1]] %>
+                <% } else { %>
+                  s/Gini
+                <% } %>
+              </p>
+              
+        </section>
+        
+        <section class="flex">
             <label class="text-zinc-300">Zona horaria:&nbsp;</label>
             <p><%= country.timezones[0] %> </p>
         </section>

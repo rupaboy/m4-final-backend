@@ -31,7 +31,6 @@ app.use(methodOverride('_method')); //PUT y DELETE en formularios HTML
 app.use(expressEjsLayouts);
 app.set('layout', 'layout');
 
-
 //Rutas
 app.use('/api/', router);
 

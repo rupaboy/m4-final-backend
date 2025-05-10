@@ -39,7 +39,6 @@ export async function getAllCountriesController(req, res) {
             //Obtenemos el promedio (índice total / países indizados)
             countriesGiniAverage /= countriesWithGini
 
-
         res.status(200).render('dashboard', {
             title: `Dashboard - ${listedCountriesNumber} items`,
             countries,
@@ -48,7 +47,7 @@ export async function getAllCountriesController(req, res) {
             countriesTotalPopulation,
             countriesWithGini,
             countriesGiniAverage
-        }) //Pasamos las variables al render 'Dashboard'
+        }) //Pasamos datos avanzados al 'Dashboard'
         
     } catch (error) {
         res.status(500).render('500', {title: 'Error de datos del servidor', error})
@@ -73,6 +72,7 @@ export async function getCountryByIdController(req, res) {
             title: `Result: ${country.name.nativeName.spa.common}`,
             country
         }
+         //Vista Result Por Id
             
         );
     } catch (error) {
@@ -84,7 +84,7 @@ export async function getCountryByIdController(req, res) {
 
 export async function addNewCountryController(req, res) {
         res.render('addCountry', {title: 'Agregar un país'})
-    
+        //Vista de Agregar País
 }
 
 export async function editCountryController(req, res) {
@@ -92,6 +92,7 @@ export async function editCountryController(req, res) {
     const country = await getCountryById(id);
 
     res.render('editCountry', { title: `Editar ${country.name.nativeName.spa.common}`, country } )
+    //Vista de Editar País
 }
 
 export async function removeCountryController(req, res) {
@@ -99,7 +100,7 @@ export async function removeCountryController(req, res) {
     const country = await getCountryById(id);
     
     res.render('removeCountry', { title: `Borrar ${country.name.nativeName.spa.common}`, country } )
-}
+} //Vista de Borrar País
 
 
 //POST
@@ -138,7 +139,7 @@ export async function postCountryController(req, res) {
             countryGiniYearLatest,
             countryGiniValueLatest,
             countryTimezones
-        } = req.body
+        } = req.body //Atrapa los elementos restantes del req.body
 
         const newCountry = {
             countryFlag,
@@ -156,17 +157,18 @@ export async function postCountryController(req, res) {
             countryGiniYearLatest,
             countryGiniValueLatest,
             countryTimezones
-        }
+        } //Y los guarda en un nuevo objeto newCountry 
 
-        const country = await postCountry(newCountry)
-
+        const country = await postCountry(newCountry) //(así será más claro el parámetro a enviar)
+ 
         if (country.length === 0) {
-            
+             
             return res.status(404).render('404', {
                 title: '404'
             })
         }
         res.status(200).redirect(`/api/countries/${country._id}`);
+        //Redirige a vista Result del país creado.
 
     } catch (error) {
         
@@ -216,7 +218,7 @@ export async function editCountryByIdController(req, res) {
                 countryGiniYearLatest,
                 countryGiniValueLatest,
                 countryTimezones
-            } = req.body
+            } = req.body //Atrapa los elementos restantes del req.body
 
             const updatedCountry = {
                 countryFlag,
@@ -234,7 +236,7 @@ export async function editCountryByIdController(req, res) {
                 countryGiniYearLatest,
                 countryGiniValueLatest,
                 countryTimezones,
-            }
+            } //Y los guarda en un nuevo objeto updatedCountry 
         
         const country = await editCountryById(id, updatedCountry)
         
@@ -243,6 +245,7 @@ export async function editCountryByIdController(req, res) {
             return res.status(404).render('404', {title: '404'})
         }
         res.status(200).redirect(`/api/countries/${country._id}`);
+        //redirige a Result con la Vista del país editado
 
     } catch (error) {
         
@@ -255,9 +258,10 @@ export async function removeCountryByIdController(req, res) {
     try {
         const {id} = req.params;
         const country = await removeCountryById(id);
-        
-        res.status(200).redirect(`/api/countries`);
+        //La variable country no la estamos usando.
 
+        res.status(200).redirect(`/api/countries`);
+        //redirige a la vista general del dashboard
     } catch (error) {
         
         res.status(500).render('500', {title: 'Error de datos del servidor', error})
@@ -266,11 +270,13 @@ export async function removeCountryByIdController(req, res) {
 
 
 export async function removeAllCountriesController(req, res) {
-
+    //Función para desarrolladores. Comentada por defecto.
+    // Hay otro método mas apropiado llamado drop(), pero no es este el caso de uso.
     try {
         const deletionResult = await removeAllCountries();
 
         res.status(200).json({ message: `${deletionResult.deletedCount} paises eliminados correctamente.` })
+        //Retorna un JSON
     } catch (error) {
         res.status(500).render('500', {title: 'Error de datos del servidor', error})
     }

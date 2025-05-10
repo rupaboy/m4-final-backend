@@ -1,0 +1,87 @@
+    <section class="flex flex-wrap items-center justify-center bg-zinc-800 font-black text-emerald-500 pb-1 text-lg border-emerald-600">
+        
+        <div class="h-40 border-r border-gray-300 m-3">
+            <h3 class="text-[1em]">Endpoints GET method:</h3>
+            <ul class="text-gray-300 text-sm font-light grid grid-cols-2">
+                
+                    <li class="border-b">/api/</li> <span class="pl-2 pr-2 border-b">Home</span>
+                    <li class="border-b">/api/countries</li> <span class="pl-2 pr-2 border-b">Dashboard</span>
+                    <li class="border-b">/api/countries/add</li> <span class="pl-2 pr-2 border-b">Agregar país</span>
+                    <li class="border-b">/api/countries/edit/:id</li> <span class="pl-2 pr-2 border-b">Editar Por Id</span>
+                    <li class="border-b">/api/countries/remove/:id</li> <span class="pl-2 pr-2 border-b">Borrar Por Id</span>
+                    <li class="border-b">/api/countries/:id, </li> <span class="pl-2 pr-2 border-b">Ver Por Id</span>
+                
+            </ul>
+        </div>
+
+        <div class="h-40 border-r border-gray-300 m-3">
+            <h3 class="text-[1em]">Endpoints POST method:</h3>
+            <ul class="text-gray-300 text-sm font-light grid grid-cols-2">
+                <li class="border-b">/api/countries/new,</li> <span class="pl-2 pr-2 border-b">Crear nuevo país</span>
+            </ul>
+        </div>
+
+        <div class="h-40 border-r border-gray-300 m-3">
+            <h3 class="text-[1em]">Endpoints PUT method:</h3>
+            <ul class="text-gray-300 text-sm font-light grid grid-cols-2">
+                <li class="border-b">/api/countries/set/:id</li> <span class="pl-2 pr-2 border-b">Alterar Por Id</span>
+            </ul>
+        </div>
+
+        <div class="h-40 border-r border-gray-300 m-3">
+            <h3 class="text-[1em]">Endpoints DELETE method:</h3>
+            <ul class="text-gray-300 text-sm font-light grid grid-cols-2">
+                <li class="border-b">/api/countries/remove/:id</li> <span class="pl-2 pr-2 border-b">Remover por Id</span>
+            </ul>
+        </div>
+
+        <div class="h-40 m-3 border-r border-gray-300">
+            <h3 class="text-[1em]">Endpoints para Desarrollo:</h3>
+            <ul class="text-gray-300 text-sm font-light grid grid-cols-2">
+                <li class="border-b">/api/countries/remove-all (DELETE)</li> <span class="pl-2 pr-2 border-b">Borrar todos (/routes/countryRoutes.mjs)</span>
+                <li class="border-b">/restconsumer (GET)</li> <span class="pl-2 pr-2 border-b">Borrar todos (app.mjs)</span>
+            </ul>
+            <p class="pt-2 text-xs">Descomentar y revisar dependencias en sus archivos respectivos.</p>
+        </div>
+        
+        <div class="h-40 m-3 border-r border-gray-300 pr-3">            
+            <h3 class="text-[1em]">Campos:</h3>
+
+            <div class="flex gap-4">
+                <ul class="text-xs text-gray-300">
+                    <li class="flex">countryFlag</li>
+                    <li class="flex">countryName</li>
+                    <li class="flex">countryCapitals</li>
+                    <li class="flex">countryContinents</li>
+                    <li class="flex">countryRegion</li>
+                    <li class="flex">countrySubRegion</li>
+                    <li class="flex">countryBorders</li>
+                    <li class="flex">countryLatLong</li>
+                </ul>
+                <ul class="text-xs text-gray-300">
+                    <li class="flex">countryArea</li>
+                    <li class="flex">countryPopulation</li>
+                    <li class="flex">countryLanguages</li>
+                    <li class="flex">countryCurrencies</li>
+                    <li class="flex">countryGiniYearLatest</li>
+                    <li class="flex">countryGiniValueLatest</li>
+                    <li class="flex">countryTimezones</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="h-40 m-3 border-r border-gray-300 pr-3">            
+            <h3 class="text-[1em]">Dependencias:</h3>
+
+            <div class="flex gap-4">
+                <ul class="text-xs text-gray-300">
+                    <li class="flex">ejs</li>
+                    <li class="flex">ejs-layouts</li>
+                    <li class="flex">method-override</li>
+                    <li class="flex">express-validator</li>
+                    <li class="flex">express</li>
+                    <li class="flex">mongoose</li>
+                </ul>
+
+
+    </section>

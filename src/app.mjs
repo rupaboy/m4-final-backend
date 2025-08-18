@@ -1,48 +1,53 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
-import methodOverride from 'method-override';
-import router from './routes/countryRoutes.mjs';
+import router from './routes/routesIndex.mjs'
 import { mongoConnect } from './config/mongoConnect.mjs';
-import expressEjsLayouts from 'express-ejs-layouts';
 import { fileURLToPath } from 'url';
-//import {apiRestConsumer} from './helpers/restCountriesToCollection.mjs'
+import cors from 'cors'
 
-//Instanciar express
+//Express instance
 const app = express();
 
-//Asignar puerto abierto, ó 3000 en localhost.
-const PORT = process.env.PORT || 3000;
-
-//Obtener el directorio del módulo PATH
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-//Helper (Rest Countries Consumer)
-//app.get('/restconsumer', async (req,res) => apiRestConsumer() );
-
-//EJS
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs'); //View Engine
+const corsSettings = {
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    credentials: true,
+    maxAge: 86400
+} //24 hs
 
 //Middleware
-app.use(express.json()); //Para procesar objetos JSON
-app.use(express.urlencoded()); //Para obtener valores de elementos del body
-app.use(methodOverride('_method')); //PUT y DELETE en formularios HTML
-app.use(expressEjsLayouts);
-app.set('layout', 'layout');
+app.use(cors(corsSettings));
+app.use(express.json()); //JSON obj processor
+app.use(express.urlencoded({ extended: true })); //For PostMan testing
 
-//Rutas
+//Routes
 app.use('/api/', router);
 
-//Manejo de errores para rutas no encontradas
+//Health Check Endpoint
+app.get('/health', (req,res) => {
+    res.status(200).json({ status: 'OK', timestamp: new Date() })
+})
+
+//Enviroment variable PORT or localhost:3000.
+const PORT = process.env.PORT || 3000;
+
+//Public Static Files Server
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/static', express.static(path.join(__dirname, 'public')));
+
+//404
 app.use((req,res,next) => {
-    res.render('404', {title: 'Página no encontrada'})
+    res.status(404).json({ title: 'Oops!', message: 'Page Not Found'})
 });
 
-//Conectar a MongoDB
+//MongoDB connection
 mongoConnect();
 
-//Iniciar el server de express
+//Launch Express Server
 app.listen(PORT, () => {
     console.log('Servidor escuchando en el puerto: ', PORT )
 });

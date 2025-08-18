@@ -1,283 +1,289 @@
+import { apiRestCountriesConsumer } from '../helpers/apiRestCountriesConsumer.mjs'
+import { apiRestCountryConsumer } from '../helpers/apiRestCountryConsumer.mjs'
+
 import {
-    getAllCountries,
-    getCountryById,
-    postCountry,
-    editCountryById,
-    removeCountryById,
-    removeAllCountries,
-} from '../services/countryServices.mjs';
+    createAllCountries,
+    createCountry,
+    readAllCountries,
+    readCountryById,
+    readCountryByCode,
+    readCountryDuplicates,
+    updateCountryByCode,
+    deleteCountryById,
+    deleteAllCountries,
+} from '../services/countryServices.mjs'
 
-//GET
-export async function getAllCountriesController(req, res) {
-    
+
+//CREATE
+export async function createAllCountriesController(req, res) {
     try {
-        const countries = await getAllCountries();
+        const success = await deleteAllCountries();
+        if (!success) {
+            return res.status(400).json({
+                message: "Couldn't drop countries collection"
+            });
+        }
+        //Deletes collection and attemps to restore it from the source API
+        const countries = await apiRestCountriesConsumer();
+        if (!countries || countries.length === 0) {
+            return res.status(400).json({
+                message: `${countries.length} countries found`
+            });
+        }
 
-        // Inicializamos numero de países listados, area de extensión total y población total
-        const listedCountriesNumber = countries.length;
-        let countriesTotalArea = 0
-        let countriesTotalPopulation = 0
+        //Data Structuring
+        const processedCountries = countries
+            .filter(country =>
+                Array.isArray(country.continents) &&
+                !(country.continents.length === 1 && country.continents[0] === 'Antarctica')
+            )
+            .map(country => ({
+                code: country.cca2,
+                name: country.name.common,
+                area: country.area,
+                population: country.population,
+                continents: country.continents.filter(c => c !== "Antarctica"),
+                flag: country.flags.svg,
+                languages: country.languages
+                    ? Object.values(country.languages).filter(l => !l.includes('Sign Language'))
+                    : [],
+                capitals: country.capital || ["N/A"],
+                timezones: country.timezones,
+                latlng: country.latlng,
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+        const insertedCountries = await createAllCountries(processedCountries);
 
-        // Inicializamos números de países con índice Gini, y variable destinada al Gini promedio
-        let countriesWithGini = 0
-        let countriesGiniAverage = 0
-        
-        //Por cada país...
-        countries.forEach((country)=>{
-            
-            countriesTotalArea += country.area //...sumamos su área de extensión
-            countriesTotalPopulation += country.population //...sumamos su población
-
-            if (country.gini) { //Si existe el índice gini en ese país...
-                ++countriesWithGini //Incrementamos el número de países con índice Gini
-
-                const lastGini = country.gini[Object.keys(country.gini)[Object.keys(country.gini).length - 1]]
-                //Utilizando el último índice registrado en el array, y lo sumamos al total de Gini.
-                countriesGiniAverage += lastGini
-            }
-        })
-            //Obtenemos el promedio (índice total / países indizados)
-            countriesGiniAverage /= countriesWithGini
-
-        res.status(200).render('dashboard', {
-            title: `Dashboard - ${listedCountriesNumber} items`,
-            countries,
-            listedCountriesNumber,
-            countriesTotalArea,
-            countriesTotalPopulation,
-            countriesWithGini,
-            countriesGiniAverage
-        }) //Pasamos datos avanzados al 'Dashboard'
-        
+        res.status(200).json({
+            message: `${insertedCountries.length} countries added to collection.`
+        });
     } catch (error) {
-        res.status(500).render('500', {title: 'Error de datos del servidor', error})
-    }
-}
+        res.status(500).json({
+            title: 'Server data error',
+            error: error.message
+        });
+    };
+};
 
+export async function createCountryController(req, res) {
+    const { code } = req.params;
 
-export async function getCountryByIdController(req, res) {
-        
-    const { id } = req.params
+    const sanitizedCode = code.trim(' ').toUpperCase()
 
     try {
-
-        const country = await getCountryById(id);
-
+        // Bring a single country
+        const country = await apiRestCountryConsumer(sanitizedCode);
         if (!country) {
-            return res.status(404).render('404', {
-                title: 'Not found'
-            })
-        }
-        res.status(200).render('result', {
-            title: `Result: ${country.name.nativeName.spa.common}`,
-            country
-        }
-         //Vista Result Por Id
-            
-        );
-    } catch (error) {
-        res.status(500).render('500', {title: 'Error de datos del servidor', error})
-        
-    }
-}
+            return res.status(404).json({
+                message: `No country found with code ${sanitizedCode}`
+            });
+        };
+        // Data Structuring
+        const processedCountry = {
+            code: country.cca2,
+            name: country.name.common,
+            area: country.area,
+            population: country.population,
+            continents: country.continents.filter(c => c !== "Antarctica"),
+            flag: country.flags.svg,
+            languages: country.languages
+                ? Object.values(country.languages).filter(l => !l.includes('Sign Language'))
+                : [],
+            capitals: country.capital || ["N/A"],
+            timezones: country.timezones,
+            latlng: country.latlng,
+        };
+        // Inserts country in DataBase
+        const insertedCountry = await createCountry(processedCountry);
 
-
-export async function addNewCountryController(req, res) {
-        res.render('addCountry', {title: 'Agregar un país'})
-        //Vista de Agregar País
-}
-
-export async function editCountryController(req, res) {
-    const {id} = req.params;
-    const country = await getCountryById(id);
-
-    res.render('editCountry', { title: `Editar ${country.name.nativeName.spa.common}`, country } )
-    //Vista de Editar País
-}
-
-export async function removeCountryController(req, res) {
-    const {id} = req.params;
-    const country = await getCountryById(id);
-    
-    res.render('removeCountry', { title: `Borrar ${country.name.nativeName.spa.common}`, country } )
-} //Vista de Borrar País
-
-
-//POST
-export async function postCountryController(req, res) {
-    try {
-
-        if (req.body.countryFlag === '') {
-            delete req.body.countryFlag
-        } //Si req.body.countryFlag es una string vacía, lo elimina.
-
-        const currencies = req.body.countryCurrencies;
-        const languages = req.body.countryLanguages;
-        
-        const countryCurrencies = currencies.reduce((acc, clave) =>{
-            acc[clave] = {}
-            return acc
-        }, {}); //Convierte el Array de currencies en un objeto
-
-        const countryLanguages = languages.reduce((acc, clave) =>{
-            acc[clave] = ''
-            return acc
-        }, {}); //Convierte el Array de languages en un objeto
-
-
-        const {
-            countryFlag,
-            countryName,
-            countryCapitals,
-            countryContinents,
-            countryRegion,
-            countrySubRegion,
-            countryBorders,
-            countryLatLong,
-            countryArea,
-            countryPopulation,
-            countryGiniYearLatest,
-            countryGiniValueLatest,
-            countryTimezones
-        } = req.body //Atrapa los elementos restantes del req.body
-
-        const newCountry = {
-            countryFlag,
-            countryName,
-            countryCapitals,
-            countryContinents,
-            countryRegion,
-            countrySubRegion,
-            countryBorders,
-            countryLatLong,
-            countryArea,
-            countryPopulation,
-            countryLanguages,
-            countryCurrencies,
-            countryGiniYearLatest,
-            countryGiniValueLatest,
-            countryTimezones
-        } //Y los guarda en un nuevo objeto newCountry 
-
-        const country = await postCountry(newCountry) //(así será más claro el parámetro a enviar)
- 
-        if (country.length === 0) {
-             
-            return res.status(404).render('404', {
-                title: '404'
-            })
-        }
-        res.status(200).redirect(`/api/countries/${country._id}`);
-        //Redirige a vista Result del país creado.
-
-    } catch (error) {
-        
-        res.status(500).render('500', {title: 'Error de datos del servidor', error})
-    }
-}
-
-
-//PUT
-export async function editCountryByIdController(req, res) {
-    try {
-        
-            
-            //Llama al id de la ruta url
-            const {id} = req.params
-            const flag = req.body.countryFlag
-            if (flag === '') {
-                req.body.countryFlag = 'https://upload.wikimedia.org/wikipedia/commons/5/5d/Jolly-Roger3.svg'
+        if (insertedCountry === null) {
+            return res.status(400).json({
+                message: `No country with code ${sanitizedCode} found`
             }
-
-            const currencies = req.body.countryCurrencies;
-            const languages = req.body.countryLanguages;
-            
-            const countryCurrencies = currencies.reduce((acc, clave) =>{
-                acc[clave] = {}
-                return acc
-            }, {}); //Convierte el Array de currencies en un objeto
-    
-            const countryLanguages = languages.reduce((acc, clave) =>{
-                acc[clave] = ''
-                return acc
-            }, {}); //Convierte el Array de languages en un objeto
-    
-            //console.log(flag)
-                        //Si req.body.countryFlag es una string vacía, lo elimina.
-            const {
-                countryFlag,
-                countryName,
-                countryCapitals,
-                countryContinents,
-                countryRegion,
-                countrySubRegion,
-                countryBorders,
-                countryLatLong,
-                countryArea,
-                countryPopulation,
-                countryGiniYearLatest,
-                countryGiniValueLatest,
-                countryTimezones
-            } = req.body //Atrapa los elementos restantes del req.body
-
-            const updatedCountry = {
-                countryFlag,
-                countryName,
-                countryCapitals,
-                countryContinents,
-                countryRegion,
-                countrySubRegion,
-                countryBorders,
-                countryLatLong,
-                countryArea,
-                countryPopulation,
-                countryLanguages,
-                countryCurrencies,
-                countryGiniYearLatest,
-                countryGiniValueLatest,
-                countryTimezones,
-            } //Y los guarda en un nuevo objeto updatedCountry 
-        
-        const country = await editCountryById(id, updatedCountry)
-        
-        if (country.length === 0) {
-            
-            return res.status(404).render('404', {title: '404'})
+            )
         }
-        res.status(200).redirect(`/api/countries/${country._id}`);
-        //redirige a Result con la Vista del país editado
+        res.status(200).json({
+            message: `Country ${processedCountry.name} added to collection.`
+        });
+    } catch (error) {
+        res.status(500).json({
+            title: 'Server data error',
+            error: error.message
+        });
+    };
+};
+
+//READ
+export async function readAllCountriesController(req, res) {
+
+    try {
+        const countries = await readAllCountries()
+        if (!countries.length) {
+            return res.status(400).json({
+                message: `No countries found`
+            })
+        }
+        res.status(200).json(countries);
 
     } catch (error) {
-        
-        res.status(500).render('500', {title: 'Error de datos del servidor', error})
-    }
+        res.status(500).json({
+            title: 'Server data error',
+            error: error.message
+        });
+    };
+};
+
+export async function readCountryByIdController(req, res) {
+
+    const { id } = req.params
+    try {
+        const country = await readCountryById(id)
+        if (country === null) {
+            return res.status(400).json({
+                message: `No country with id ${id} found`
+            })
+        }
+        res.status(200).json(country);
+
+    } catch (error) {
+        res.status(500).json({
+            title: 'Server data error',
+            error: error.message
+        });
+    };
+};
+
+export async function readCountryByCodeController(req, res) {
+
+    const { code } = req.params
+    try {
+        const country = await readCountryByCode(code)
+
+        if (country === null) {
+            return res.status(400).json({
+                message: `No country with code ${code} found`
+            })
+        }
+        res.status(200).json(country);
+
+    } catch (error) {
+        res.status(500).json({
+            title: 'Server data error',
+            error: error.message
+        });
+    };
+};
+
+export async function readCountryDuplicatesController(req, res) {
+    try {
+        const countries = await readCountryDuplicates()
+
+        if (countries === null) {
+            return res.status(400).json({
+                message: `No country duplicates found`
+            })
+        }
+        res.status(200).json(countries);
+
+    } catch (error) {
+        res.status(500).json({
+            title: 'Server data error',
+            error: error.message
+        });
+    };
 }
+
+//UPDATE
+export async function updateCountryByCodeController(req, res) {
+    const { code } = req.params;
+    const sanitizedCode = code.toUpperCase().trim()
+    const country = await readCountryByCode(sanitizedCode)
+
+    if (country === null) {
+        return res.status(400).json({
+            message: `No country with code ${sanitizedCode} found`
+        })
+    }
+
+    try {
+        // Bring a single country
+        const country = await apiRestCountryConsumer(sanitizedCode);
+        if (country === null) {
+            return res.status(404).json({
+                message: `No country found with code ${sanitizedCode}`
+            });
+        };
+        // Data Structuring
+        const processedCountry = {
+            name: country.name.common,
+            area: country.area,
+            population: country.population,
+            continents: country.continents.filter(c => c !== "Antarctica"),
+            flag: country.flags.svg,
+            languages: country.languages
+                ? Object.values(country.languages).filter(l => !l.includes('Sign Language'))
+                : [],
+            capitals: country.capital || ["N/A"],
+            timezones: country.timezones,
+            latlng: country.latlng,
+        };
+        // Inserts country in DataBase
+        const insertedCountry = await updateCountryByCode(sanitizedCode, processedCountry);
+
+        res.status(200).json({
+            message: `Country ${insertedCountry.name} updated in collection.`
+        });
+    } catch (error) {
+        res.status(500).json({
+            title: 'Server data error',
+            error: error.message
+        });
+    };
+};
 
 //DELETE
-export async function removeCountryByIdController(req, res) {
+
+export async function deleteCountryByIdController(req, res) {
+    const { id } = req.params
     try {
-        const {id} = req.params;
-        const country = await removeCountryById(id);
-        //La variable country no la estamos usando.
+        const country = await readCountryById(id)
+        if (!country) {
+            return res.status(400).json({
+                message: "Couldn't find country", id
+            });
+        };
 
-        res.status(200).redirect(`/api/countries`);
-        //redirige a la vista general del dashboard
+        const success = await deleteCountryById(id)
+        if (success) {
+            return res.status(200).json({
+                message: `Success deleting ${id}`
+            });
+        };
     } catch (error) {
-        
-        res.status(500).render('500', {title: 'Error de datos del servidor', error})
-    }
-}
+        return res.status(500).json({
+            title: 'Server error',
+            error: error.message
+        });
+    };
+};
 
-
-export async function removeAllCountriesController(req, res) {
-    //Función para desarrolladores. Comentada por defecto.
-    // Hay otro método mas apropiado llamado drop(), pero no es este el caso de uso.
+export async function deleteAllCountriesController(req, res) {
     try {
-        const deletionResult = await removeAllCountries();
+        const success = await deleteAllCountries()
+        if (!success) {
+            return res.status(400).json({
+                message: "Couldn't drop countries collection"
+            });
+        }
+        return res.status(200).json({
+            message: "Countries collection dropped successfully"
+        });
 
-        res.status(200).json({ message: `${deletionResult.deletedCount} paises eliminados correctamente.` })
-        //Retorna un JSON
     } catch (error) {
-        res.status(500).render('500', {title: 'Error de datos del servidor', error})
+        console.error("Error purging countries", error);
+        return res.status(500).json({
+            title: 'Server Error',
+            error: error.message
+        });
     }
 }

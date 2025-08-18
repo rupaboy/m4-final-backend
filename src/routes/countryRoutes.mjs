@@ -1,61 +1,79 @@
 import express from 'express';
-
-//Express-Validator
-import { validationHandler } from '../validators/validationHandler.mjs'
-
-//Validators.
-import {
-    countrySanitizer,
-    countryValidations
-} from '../validators/countriesValidationHelpers.mjs'
+import { authenticateToken, hasPermission } from '../middleware/authMiddleware.mjs'
 
 //Controllers
 import {
-    //removeAllCountriesController,
-    getAllCountriesController,
-    getCountryByIdController,
-    addNewCountryController,
-    editCountryController,
-    removeCountryController,
-    postCountryController,
-    editCountryByIdController,
-    removeCountryByIdController,
+    createCountryController,
+    createAllCountriesController,
+    readAllCountriesController,
+    readCountryByIdController,
+    readCountryByCodeController,
+    readCountryDuplicatesController,
+    updateCountryByCodeController,
+    deleteCountryByIdController,
+    deleteAllCountriesController,
 } from '../controllers/countryControllers.mjs';
 
 //Router
-const router = express.Router();
-
-//GET
-router.get( '/', (req,res) => { res.render('index', { title: 'Home' }) } )
-
-router.get( '/countries', getAllCountriesController )
-
-router.get( '/countries/add', addNewCountryController )
-
-router.get( '/countries/edit/:id', editCountryController )
-
-router.get( '/countries/remove/:id', removeCountryController )
-
-router.get( '/countries/:id', getCountryByIdController )
-
-//POST
-router.post( '/countries/new',
-    countrySanitizer(),
-    countryValidations(),
-    validationHandler,
-    postCountryController )
-
-//PUT
-router.put( '/countries/set/:id',
-    countrySanitizer(),
-    countryValidations(),
-    validationHandler,
-    editCountryByIdController )
+const countryRouter = express.Router();
 
 
-//DELETE
-//router.delete( '/countries/remove-all', removeAllCountriesController )
+//ADMIN CREATE___________________________________________
+countryRouter.post( //Tested
+    '/collection/populate',
+    authenticateToken, hasPermission('create:countries'),
+    createAllCountriesController
+)
+countryRouter.post(
+    '/code/:code', //Tested
+    authenticateToken, hasPermission('create:countries'),
+    createCountryController,
+)
 
-router.delete( '/countries/remove/:id', removeCountryByIdController )
+//PUBLIC READ___________________________________________
+countryRouter.get( //Tested
+    '/list',
+    readAllCountriesController
+)
+countryRouter.get( //Tested
+    '/code/:code',
+    readCountryByCodeController
+) // not-MongoObjIds but CCA2 country code
 
-export default router;
+//ADMIN READ_____________________________________________
+countryRouter.get(  //Tested
+    '/id/:id',
+    authenticateToken,
+    hasPermission('update:countries'),
+    readCountryByIdController
+)
+countryRouter.get( //Tested
+    '/collection/duplicates',
+    authenticateToken,
+    hasPermission('update:countries'),
+    readCountryDuplicatesController
+)
+
+//ADMIN UPDATE___________________________________________
+countryRouter.put( //Tested
+    '/code/:code',
+    authenticateToken,
+    hasPermission('update:countries'),
+    updateCountryByCodeController
+)
+
+//ADMIN DELETE___________________________________________
+countryRouter.delete( //Tested
+    '/id/:id',
+    authenticateToken,
+    hasPermission('delete:countries'),
+    deleteCountryByIdController,
+)
+countryRouter.delete( //Tested
+    '/collection/purge',
+    authenticateToken,
+    hasPermission('delete:countries'),
+    deleteAllCountriesController
+)
+
+export default countryRouter;

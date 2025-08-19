@@ -3,15 +3,23 @@ import { authenticateToken, hasPermission } from '../middleware/authMiddleware.m
 import {
     createRadioMarkerController,
     readAllMarkersByUserController,
+    readAllMarkersByCountryController,
+    searchMarkersByNameController,
     readMarkerByIdController,
     updateMarkerScoreController,
     deleteMarkerByIdController,
-    deleteAllMarkersByUserController
-} from '../controllers/radioMarkerController.mjs';
+    deleteAllMarkersByUserController,
+    createTagController,
+    deleteTagController,
+    updateTagController,
+    updateTagsController,
+    readFavoriteCountriesController,
+    browseRadiosByCountryCode
+} from '../controllers/radioMarkerControllers.mjs';
 
 const radioMarkerRouter = express.Router();
 
-// AUTHENTICATED CREATE
+// CREATE
 radioMarkerRouter.post(
     '/',
     authenticateToken,
@@ -19,11 +27,21 @@ radioMarkerRouter.post(
     createRadioMarkerController
 );
 
-// AUTHENTICATED READ
+// READ
 radioMarkerRouter.get(
     '/user/:userId',
     authenticateToken,
     readAllMarkersByUserController
+);
+radioMarkerRouter.get(
+    '/user/:userId/country/:countrycode',
+    authenticateToken,
+    readAllMarkersByCountryController
+);
+radioMarkerRouter.get(
+    '/user/:userId/search',
+    authenticateToken,
+    searchMarkersByNameController
 );
 radioMarkerRouter.get(
     '/id/:id',
@@ -31,7 +49,14 @@ radioMarkerRouter.get(
     readMarkerByIdController
 );
 
-// AUTHENTICATED UPDATE
+// FAVORITES
+radioMarkerRouter.get(
+    '/user/:userId/favorites',
+    authenticateToken,
+    readFavoriteCountriesController
+);
+
+// UPDATE
 radioMarkerRouter.put(
     '/id/:id/score',
     authenticateToken,
@@ -39,7 +64,33 @@ radioMarkerRouter.put(
     updateMarkerScoreController
 );
 
-// AUTHENTICATED DELETE
+// TAGS
+radioMarkerRouter.put(
+    '/id/:id/tag/add',
+    authenticateToken,
+    hasPermission('update:radioMarkers'),
+    createTagController
+);
+radioMarkerRouter.put(
+    '/id/:id/tag/remove',
+    authenticateToken,
+    hasPermission('update:radioMarkers'),
+    deleteTagController
+);
+radioMarkerRouter.put(
+    '/id/:id/tag/update',
+    authenticateToken,
+    hasPermission('update:radioMarkers'),
+    updateTagController
+);
+radioMarkerRouter.put(
+    '/id/:id/tags/set',
+    authenticateToken,
+    hasPermission('update:radioMarkers'),
+    updateTagsController
+);
+
+// DELETE
 radioMarkerRouter.delete(
     '/id/:id',
     authenticateToken,
@@ -51,6 +102,12 @@ radioMarkerRouter.delete(
     authenticateToken,
     hasPermission('delete:radioMarkers'),
     deleteAllMarkersByUserController
+);
+
+radioMarkerRouter.get(
+    '/browser/country/:countryCode',
+    authenticateToken,
+    browseRadiosByCountryCode,
 );
 
 export default radioMarkerRouter;

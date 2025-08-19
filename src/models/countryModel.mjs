@@ -16,7 +16,9 @@
     }, { timestamps: true });
 
     const Country = mongoose.model(
-        'country', countrySchema
+        'country',
+        countrySchema,
+        'countries'
     );
     export default Country
     

@@ -28,11 +28,13 @@ userRouter.post( //TESTED
     createNewUserController
 )
 
-//userRouter.post( //TESTED
+//userRouter.post( //TESTED (Tokens keep working') May crash app!
+//Needs batch update userDataBase roles _ids.
+//May break admin account. //Mandatory server restart.
 //    '/collection/initializeroles',
 //    authenticateToken,
-//    hasPermission('create:users'), //Needs to be commented before using
-//    initializeRolesAndPermissions
+//    hasPermission('create:users'), //Needs to be commented before using.
+//    initializeRolesAndPermissions //This is a very dangerous operation actually.
 //)
 
 //ADMIN READ

@@ -6,7 +6,7 @@ export const apiRestCountriesConsumer = async () => {
             'https://restcountries.com/v3.1/all',
             { params: {
                 fields:
-                'continents,languages,timezones,cca2,name,flags,capital,population,area,latlng'
+                'continents,languages,timezones,cca2,name,flags,capital,borders,population,area'
                 }
             });
 
@@ -15,7 +15,7 @@ export const apiRestCountriesConsumer = async () => {
         return countries;
 
     } catch (error) {
-        console.error("Error en la solicitud a RestCountries:", error.message);
+        console.error("Error fetching Rest Countries:", error.message);
         throw error;
     }
 };

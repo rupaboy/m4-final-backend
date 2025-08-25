@@ -5,31 +5,117 @@ import {
     readAllMarkersByCountry,
     searchMarkersByName,
     readMarkerById,
+    updateMarkerStatus,
     updateMarkerScore,
     deleteMarkerById,
     deleteAllMarkersByUser,
-    createMarkerTag,
-    deleteMarkerTag,
-    updateMarkerTag,
-    updateMarkerTags,
     readFavoriteCountries,
-    radioBrowserAPI
+    radioBrowserAPI,
 } from "../services/radioMarkerService.mjs";
 
 // CREATE
 export async function createRadioMarkerController(req, res) {
     try {
-        const marker = await createRadioMarker(req.body);
+        const { stationuuid, name, tags, url_resolved, state, countryCode } = req.body;
+
+        // Check authentication
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "User not authenticated" });
+        }
+        const userId = req.user.id;
+
+        // already marked (user + stationuuid)
+        const existingMarker = await RadioMarker.findOne({ user: userId, stationuuid });
+        if (existingMarker) {
+            return res.status(400).json({ message: "Stations was already marked" });
+        }
+
+        const newMarker = {
+            user: userId,
+            stationuuid,
+            name,
+            tags: SanitizeTags(tags),
+            url_resolved,
+            state,
+            countryCode
+        };
+
+        const marker = await createRadioMarker(newMarker);
+
         return res.status(201).json({ message: "Radio marker created successfully", marker });
     } catch (error) {
         return res.status(500).json({ title: "Server error", error: error.message });
     }
 }
 
+
 // READ
+// FAVORITES
+export async function readFavoriteCountriesController(req, res) {
+    try {
+        const { id } = req.params;
+        const countries = await readFavoriteCountries(id);
+        console.log(id, countries)
+        if (!countries.length) return res.status(404).json({ message: "No favorite countries found for user" });
+        return res.status(200).json(countries);
+    } catch (error) {
+        return res.status(500).json({ title: "Server error", error: error.message });
+    }
+}
+
+export async function browseRadiosByCountryCode(req, res) {
+    try {
+        const RADIO_PAGE_LIMIT = parseInt(process.env.RADIO_PAGE_LIMIT, 10);
+        const { code, page } = req.params;
+        const currentPage = parseInt(page) || 1;
+        const offset = (currentPage - 1) * RADIO_PAGE_LIMIT;
+
+        // Fetch stations paginated
+        const { data: stations } = await radioBrowserAPI.get(
+            `/stations/bycountrycodeexact/${code.toLowerCase()}`,
+            { params: { offset, limit: RADIO_PAGE_LIMIT } } // sin order
+        );
+
+        if (!stations || stations.length === 0) {
+            return res.status(404).json({ message: 'No stations found for this country.' });
+        }
+
+        // Fetch user's marked stations
+        const userMarkers = await RadioMarker.find({
+            user: req.user,
+            countryCode: code.toUpperCase()
+        }).lean();
+        const favoriteUUIDs = new Set(userMarkers.map(m => m.stationuuid));
+
+        // Format stations
+        const formatted = stations.map(station => ({
+            stationuuid: station.stationuuid,
+            name: station.name.trim(),
+            tags: station.tags ? station.tags.split(',').map(t => t.trim()) : [],
+            url_resolved: station.url_resolved,
+            state: station.state,
+            countryCode: code.toUpperCase(),
+            favorite: favoriteUUIDs.has(station.stationuuid)
+        }));
+
+        // Determine next/previous page
+        const previousPage = currentPage > 1 ? currentPage - 1 : null;
+        const nextPage = stations.length === RADIO_PAGE_LIMIT ? currentPage + 1 : null;
+
+        res.status(200).json({
+            page: currentPage,
+            previousPage,
+            nextPage,
+            results: formatted
+        });
+    } catch (error) {
+        res.status(500).json({ title: 'Server error', error: error.message });
+    }
+}
+
 export async function readAllMarkersByUserController(req, res) {
     try {
-        const markers = await readAllMarkersByUser(req.params.userId);
+        const markers = await readAllMarkersByUser(req.params.id);
         if (!markers.length) return res.status(404).json({ message: "No markers found for user" });
         return res.status(200).json(markers);
     } catch (error) {
@@ -39,7 +125,9 @@ export async function readAllMarkersByUserController(req, res) {
 
 export async function readAllMarkersByCountryController(req, res) {
     try {
-        const markers = await readAllMarkersByCountry(req.params.userId, req.params.countrycode);
+        const { id, code } = req.params
+        const countryCode = code.toUpperCase()
+        const markers = await readAllMarkersByCountry(id, countryCode);
         if (!markers.length) return res.status(404).json({ message: "No markers found for this country" });
         return res.status(200).json(markers);
     } catch (error) {
@@ -49,7 +137,8 @@ export async function readAllMarkersByCountryController(req, res) {
 
 export async function searchMarkersByNameController(req, res) {
     try {
-        const markers = await searchMarkersByName(req.params.userId, req.query.q);
+        const { id, name } = req.params
+        const markers = await searchMarkersByName(id, name);
         if (!markers.length) return res.status(404).json({ message: "No markers found matching the query" });
         return res.status(200).json(markers);
     } catch (error) {
@@ -68,56 +157,42 @@ export async function readMarkerByIdController(req, res) {
 }
 
 // UPDATE
+export async function updateMarkerStatusController(req, res) {
+    try {
+        const { id } = req.params;
+        const updated = await updateMarkerStatus(id);
+
+        if (!updated) {
+            return res.status(404).json({ message: `No se pudo actualizar el marcador con id ${id}` });
+        }
+        return res.status(200).json({
+            message: `Marcador ${updated.name} actualizado correctamente`,
+            marker: updated
+        });
+    } catch (error) {
+        return res.status(500).json({ title: "Error del servidor", error: error.message });
+    }
+}
+
+
 export async function updateMarkerScoreController(req, res) {
     try {
-        const updated = await updateMarkerScore(req.params.id, req.body.score);
-        if (!updated) return res.status(404).json({ message: `Marker with id ${req.params.id} not found` });
-        return res.status(200).json({ message: "Marker score updated successfully", marker: updated });
-    } catch (error) {
-        return res.status(500).json({ title: "Server error", error: error.message });
-    }
-}
+        const userId = req.user?.id; //req.user from middleware
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthenticated user" });
+        }
+        const { id, score } = req.params;
 
-// TAGS
-export async function createTagController(req, res) {
-    try {
-        const { markerId, newTag } = req.body;
-        const updatedMarker = await createMarkerTag(markerId, newTag);
-        if (!updatedMarker) return res.status(404).json({ message: `Marker with id ${markerId} not found` });
-        return res.status(200).json({ message: "Tag added successfully", marker: updatedMarker });
-    } catch (error) {
-        return res.status(500).json({ title: "Server error", error: error.message });
-    }
-}
+        // Find marker and validate user
+        const marker = await RadioMarker.findOne({ _id: id, user: userId });
+        if (!marker) {
+            return res.status(404).json({ message: `Marker id ${id} not found` });
+        }
 
-export async function deleteTagController(req, res) {
-    try {
-        const { markerId, tagToRemove } = req.body;
-        const updatedMarker = await deleteMarkerTag(markerId, tagToRemove);
-        if (!updatedMarker) return res.status(404).json({ message: `Marker with id ${markerId} not found` });
-        return res.status(200).json({ message: "Tag removed successfully", marker: updatedMarker });
-    } catch (error) {
-        return res.status(500).json({ title: "Server error", error: error.message });
-    }
-}
+        // Update score
+        await updateMarkerScore(id, score);
 
-export async function updateTagController(req, res) {
-    try {
-        const { markerId, oldTag, newTag } = req.body;
-        const updatedMarker = await updateMarkerTag(markerId, oldTag, newTag);
-        if (!updatedMarker) return res.status(404).json({ message: `Marker with id ${markerId} or tag not found` });
-        return res.status(200).json({ message: "Tag updated successfully", marker: updatedMarker });
-    } catch (error) {
-        return res.status(500).json({ title: "Server error", error: error.message });
-    }
-}
-
-export async function updateTagsController(req, res) {
-    try {
-        const { markerId, tagsArray } = req.body;
-        const updatedMarker = await updateMarkerTags(markerId, tagsArray);
-        if (!updatedMarker) return res.status(404).json({ message: `Marker with id ${markerId} not found` });
-        return res.status(200).json({ message: "Tags replaced successfully", marker: updatedMarker });
+        return res.status(200).json({ message: "Station score updated!", marker });
     } catch (error) {
         return res.status(500).json({ title: "Server error", error: error.message });
     }
@@ -136,54 +211,10 @@ export async function deleteMarkerByIdController(req, res) {
 
 export async function deleteAllMarkersByUserController(req, res) {
     try {
-        await deleteAllMarkersByUser(req.params.userId);
+        await deleteAllMarkersByUser(req.params.id);
         return res.status(200).json({ message: "All markers for user deleted successfully" });
     } catch (error) {
         return res.status(500).json({ title: "Server error", error: error.message });
     }
 }
 
-// FAVORITES
-export async function readFavoriteCountriesController(req, res) {
-    try {
-        const countries = await readFavoriteCountries(req.params.userId);
-        if (!countries.length) return res.status(404).json({ message: "No favorite countries found for user" });
-        return res.status(200).json(countries);
-    } catch (error) {
-        return res.status(500).json({ title: "Server error", error: error.message });
-    }
-}
-
-export async function browseRadiosByCountryCode(req, res) {
-        try {
-            const { countryCode } = req.params;
-
-            // Brings radios by country
-            const { data: stations } = await radioBrowserAPI.get(
-                `/stations/bycountrycodeexact/${countryCode.toLowerCase()}`
-            );
-
-            // Brings marked by user
-            const userMarkers = await RadioMarker.find({
-                user: req.user.id,
-                countryCode: countryCode.toUpperCase()
-            }).lean();
-            const favoriteUUIDs = new Set(userMarkers.map(m => m.stationuuid));
-
-            // Convert, then marks favourites
-            const formatted = stations.map(station => ({
-                stationuuid: station.stationuuid,
-                name: station.name,
-                tags: station.tags ? station.tags.split(',').map(t => t.trim()) : [],
-                url_resolved: station.url_resolved,
-                state: station.state,
-                countryCode: countryCode.toUpperCase(),
-                favorite: favoriteUUIDs.has(station.stationuuid)
-            }));
-
-            res.status(200).json(formatted);
-
-        } catch (error) {
-            res.status(500).json({ title: 'Server error', error: error.message });
-        }
-    }

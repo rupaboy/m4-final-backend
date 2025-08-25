@@ -12,6 +12,11 @@ class UserRepository extends IRepository {
             .lean(); //(JSON)
     }
 
+    async readByLocation(code) {
+        return await User.find({ location: code },
+            { _id: 1, username: 1, email: 1 })
+    }
+
     async readById(id) {
         return await User.findById(id).populate('role', 'name description').lean();
     }
@@ -101,7 +106,7 @@ class UserRepository extends IRepository {
     //    await User.collection.drop();
     //    return true;
     //}
-    
+
     async deleteByUsernamesAllExceptAdmin() {
         //Deletes everyone except admin username acoount
         const result = await User.deleteMany({ username: { $ne: "admin" } });
@@ -118,8 +123,8 @@ class UserRepository extends IRepository {
             throw new Error("Forbidden target: main administrator's account")
         }
 
-    const deletedUser = await User.findByIdAndDelete(id);
-    return deletedUser.toObject();
+        const deletedUser = await User.findByIdAndDelete(id);
+        return deletedUser.toObject();
     }
 
 

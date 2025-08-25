@@ -7,7 +7,7 @@ export const apiRestCountryConsumer = async (code) => {
             `https://restcountries.com/v3.1/alpha/${code}`,
             { params: {
                 fields:
-                'continents,languages,timezones,cca2,name,flags,capital,population,area,latlng'
+                'continents,languages,timezones,cca2,name,flags,capital,borders,population,area'
             }}
         );
 

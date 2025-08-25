@@ -13,11 +13,11 @@ const initialPermissions = [
     { name: 'read:users', description: 'Can read users' },
     { name: 'update:users', description: 'Can update users' },
     { name: 'delete:users', description: 'Can delete users' },
-    // MARKERS
-    { name: 'create:markers', description: 'Can create markers' },
-    { name: 'read:markers', description: 'Can read markers' },
-    { name: 'update:markers', description: 'Can update markers' },
-    { name: 'delete:markers', description: 'Can delete markers' },
+    // RADIO
+    { name: 'create:radio', description: 'Can create radio marker' },
+    { name: 'read:radio', description: 'Can read radio marker' },
+    { name: 'update:radio', description: 'Can update radio marker' },
+    { name: 'delete:radio', description: 'Can delete radio marker' },
 ];
 
 const initialRoles = [
@@ -28,6 +28,7 @@ const initialRoles = [
             'read:countries',
             'create:markers', 'read:markers', 'update:markers', 'delete:markers',
             'read:users', 'update:users', 'delete:users',
+            'create:radios', 'read:radios', 'update:radios', 'delete:radios',
         ]
     },
     {
@@ -37,6 +38,7 @@ const initialRoles = [
             'create:countries', 'read:countries', 'update:countries', 'delete:countries',
             'create:markers', 'read:markers', 'update:markers', 'delete:markers',
             'create:users', 'read:users', 'update:users', 'delete:users',
+            'create:radios', 'read:radios', 'update:radios', 'delete:radios',
         ]
     },
 ];

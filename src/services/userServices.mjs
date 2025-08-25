@@ -10,6 +10,10 @@ export async function readAllUsers() {
     return await UserRepository.readAll()
 }
 
+export async function readUsersByLocation(code) {
+    return await UserRepository.readByLocation(code)
+}
+
 export async function readUserById(id) {
     return await UserRepository.readById(id)
 }

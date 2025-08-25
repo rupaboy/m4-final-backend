@@ -1,15 +1,20 @@
 import { validationResult } from "express-validator";
 
-
 export const validationHandler = (req, res, next) => {
-    const errors = validationResult(req);
-    //console.log('Validation handler: Log of errors: ', errors)
-    if (!errors.isEmpty()) {
-        
-        const errorMessages = errors.array().map(error => `${error.msg} (${errors.path})`).join(', ');
+  const errors = validationResult(req);
 
-        
-        return res.render('400', {title: 'Error de validación de datos: ', errorMessages })
-    }
-    next()
+  if (!errors.isEmpty()) {
+    const errorMessages = errors
+      .array()
+      .map(err => `${err.msg || 'Validation error'} (${err.param || 'unknown'} in ${err.location || 'unknown location'})`)
+      .join(', ');
+
+
+    return res.status(400).json({
+      message: 'Data validation error',
+      errorMessages
+    });
+  }
+
+  next();
 };

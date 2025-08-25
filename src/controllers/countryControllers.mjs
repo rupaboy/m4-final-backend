@@ -1,3 +1,5 @@
+import { filterCountries, sanitizeCountryObject } from '../validators/countriesSanitizers.mjs'
+import { getCapitalImage } from '../helpers/apiWikipediaCapitalImageConsumer.mjs'
 import { apiRestCountriesConsumer } from '../helpers/apiRestCountriesConsumer.mjs'
 import { apiRestCountryConsumer } from '../helpers/apiRestCountryConsumer.mjs'
 
@@ -30,27 +32,10 @@ export async function createAllCountriesController(req, res) {
                 message: `${countries.length} countries found`
             });
         }
-
         //Data Structuring
-        const processedCountries = countries
-            .filter(country =>
-                Array.isArray(country.continents) &&
-                !(country.continents.length === 1 && country.continents[0] === 'Antarctica')
-            )
-            .map(country => ({
-                code: country.cca2,
-                name: country.name.common,
-                area: country.area,
-                population: country.population,
-                continents: country.continents.filter(c => c !== "Antarctica"),
-                flag: country.flags.svg,
-                languages: country.languages
-                    ? Object.values(country.languages).filter(l => !l.includes('Sign Language'))
-                    : [],
-                capitals: country.capital || ["N/A"],
-                timezones: country.timezones,
-                latlng: country.latlng,
-            }))
+        const processedCountries = filterCountries(countries)
+            .map(country => sanitizeCountryObject(country))
+            .filter(Boolean) //removes null
             .sort((a, b) => a.name.localeCompare(b.name));
         const insertedCountries = await createAllCountries(processedCountries);
 
@@ -67,32 +52,18 @@ export async function createAllCountriesController(req, res) {
 
 export async function createCountryController(req, res) {
     const { code } = req.params;
-
-    const sanitizedCode = code.trim(' ').toUpperCase()
-
+    const sanitizedCode = code.trim(' ').toUpperCase();
     try {
         // Bring a single country
-        const country = await apiRestCountryConsumer(sanitizedCode);
-        if (!country) {
+        const countryRaw = await apiRestCountryConsumer(sanitizedCode);
+        if (!countryRaw) {
             return res.status(404).json({
                 message: `No country found with code ${sanitizedCode}`
             });
         };
         // Data Structuring
-        const processedCountry = {
-            code: country.cca2,
-            name: country.name.common,
-            area: country.area,
-            population: country.population,
-            continents: country.continents.filter(c => c !== "Antarctica"),
-            flag: country.flags.svg,
-            languages: country.languages
-                ? Object.values(country.languages).filter(l => !l.includes('Sign Language'))
-                : [],
-            capitals: country.capital || ["N/A"],
-            timezones: country.timezones,
-            latlng: country.latlng,
-        };
+        const processedCountry = sanitizerCountryObject(countryRaw);
+
         // Inserts country in DataBase
         const insertedCountry = await createCountry(processedCountry);
 
@@ -191,45 +162,56 @@ export async function readCountryDuplicatesController(req, res) {
             error: error.message
         });
     };
+};
+
+export async function readCountryCapitalImage(req, res) {
+  const { name } = req.params;
+  const sanitizedName = name.trim();
+  const capitalizedName = sanitizedName
+    .charAt(0).toUpperCase() + sanitizedName.slice(1).toLowerCase();
+  try {
+    const capitalImage = await getCapitalImage(capitalizedName);
+    if (!capitalImage) {
+      return res.status(404).json({
+        message: `No capital image found for ${capitalizedName}`
+      });
+    }
+    res.status(200).json({
+      message: `Found an image for ${capitalizedName}!`,
+      imageUrl: capitalImage
+    });
+  } catch (error) {
+    res.status(500).json({
+      title: "Server data error",
+      error: error.message
+    });
+  }
 }
 
 //UPDATE
 export async function updateCountryByCodeController(req, res) {
     const { code } = req.params;
     const sanitizedCode = code.toUpperCase().trim()
-    const country = await readCountryByCode(sanitizedCode)
-
-    if (country === null) {
+    //Exists?
+    const existingCountry = await readCountryByCode(sanitizedCode);
+    if (!existingCountry) {
         return res.status(400).json({
             message: `No country with code ${sanitizedCode} found`
-        })
+        });
     }
-
     try {
         // Bring a single country
-        const country = await apiRestCountryConsumer(sanitizedCode);
-        if (country === null) {
+        const countryRaw = await apiRestCountryConsumer(sanitizedCode);
+        if (!countryRaw) {
             return res.status(404).json({
                 message: `No country found with code ${sanitizedCode}`
             });
         };
         // Data Structuring
-        const processedCountry = {
-            name: country.name.common,
-            area: country.area,
-            population: country.population,
-            continents: country.continents.filter(c => c !== "Antarctica"),
-            flag: country.flags.svg,
-            languages: country.languages
-                ? Object.values(country.languages).filter(l => !l.includes('Sign Language'))
-                : [],
-            capitals: country.capital || ["N/A"],
-            timezones: country.timezones,
-            latlng: country.latlng,
-        };
+        const processedCountry = sanitizeCountryObject(countryRaw)
         // Inserts country in DataBase
         const insertedCountry = await updateCountryByCode(sanitizedCode, processedCountry);
-
+        
         res.status(200).json({
             message: `Country ${insertedCountry.name} updated in collection.`
         });
@@ -242,7 +224,6 @@ export async function updateCountryByCodeController(req, res) {
 };
 
 //DELETE
-
 export async function deleteCountryByIdController(req, res) {
     const { id } = req.params
     try {

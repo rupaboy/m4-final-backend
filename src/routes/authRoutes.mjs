@@ -1,5 +1,15 @@
 import express from 'express';
 
+//Validators/Sanitizers
+import { validationHandler } from '../validators/validationHandler.mjs';
+
+import {
+    userCreateBodyValidator,
+    userUpdateBodyValidator
+} from '../validators/bodyValidationHelpers.mjs'
+
+
+
 //Controllers
 import {
     register,
@@ -10,7 +20,16 @@ import {
 const authRouter = express.Router();
 
 //POST
-authRouter.post( '/signup', register )
-authRouter.post( '/signin', login )
+authRouter.post(
+    '/signup',
+    userCreateBodyValidator, validationHandler,
+    register
+)
+
+authRouter.post(
+    '/signin',
+    userUpdateBodyValidator, validationHandler,
+    login
+)
 
 export default authRouter;

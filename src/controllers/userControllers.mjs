@@ -4,6 +4,7 @@ import {
     createNewUser,
     readAllUsers,
     readUserById,
+    readUsersByLocation,
     readUserByEmail,
     readUserByUsername,
     readUserDuplicates,
@@ -57,6 +58,24 @@ export async function readAllUsersController(req, res) {
         if (!users.length) {
             return res.status(400).json({
                 message: `No users found`
+            })
+        }
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({
+            title: 'Server data error',
+            error: error.message
+        });
+    }
+}
+
+export async function readUsersByLocationController(req, res) {
+    const { code } = req.params
+    try {
+        const users = await readUsersByLocation(code)
+        if (users === null) {
+            return res.status(400).json({
+                message: `Found no users located in ${code}`
             })
         }
         res.status(200).json(users);
@@ -147,27 +166,31 @@ export async function readUserDuplicatesController(req, res) {
 // UPDATE
 export async function updateUserByIdController(req, res) {
     const { id } = req.params;
-    const { username, email, password, location, role } = req.body;
-
-    if (username && username.toLowerCase() === 'admin') {
-        throw new Error(`Username ${username} reserved for administrator`)
-    }
-    // Find given Role
-        const newRole = await findRoleByName(role)
-        if (!newRole) return res.status(400).json({ message: `Role "${newRole}" does not exist` });
-
-        const newRoleId = newRole._id
-
-    //As long as they come in the request
-    const updatedData = {
-        ...(username && { username }),
-        ...(email && { email }),
-        ...(password && { password }),
-        ...(location && { location }),
-        ...(role && { role: newRoleId }),
-    };
+    const { username, email, password, location, role: roleInput } = req.body;
 
     try {
+        // Avoid 'admin' username
+        if (username && username.toLowerCase() === 'admin') {
+            return res.status(400).json({ message: `Username "${username}" reserved for administrator` });
+        }
+
+        // as long as they come with the body of the request
+        const updatedData = {
+            ...(username && { username }),
+            ...(email && { email }),
+            ...(password && { password }),
+            ...(location && { location }),
+        };
+
+        // Validate role if it comes
+        if (typeof roleInput !== "undefined") {
+            const newRole = await findRoleByName(roleInput);
+            if (!newRole) {
+                return res.status(400).json({ message: `Role "${roleInput}" does not exist` });
+            }
+            updatedData.role = newRole._id;
+        }
+
         const updatedUser = await updateUserById(id, updatedData);
 
         if (!updatedUser) {
@@ -176,17 +199,16 @@ export async function updateUserByIdController(req, res) {
 
         return res.status(200).json({
             message: `User ${updatedUser.username} updated successfully`,
-            user: updatedUser
+            user: updatedUser,
         });
+
     } catch (error) {
-        // Email/Username duplicados
-        if (error.message.includes('already exists')) {
+        if (error.message.includes("already exists")) {
             return res.status(400).json({ message: error.message });
         }
-        return res.status(500).json({ title: 'Server error', error: error.message });
+        return res.status(500).json({ title: "Server error", error: error.message });
     }
 }
-
 
 //DELETE
 export async function deleteUserByIdController(req, res) {

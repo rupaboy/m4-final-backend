@@ -11,8 +11,8 @@
         flag: { type: String, required: false },
         languages: { type: [String], required: true },
         capitals: { type: [String], required: true },
+        borders: { type: [String], required: false },
         timezones: { type: [String], required: true },
-        latlng: { type: [Number], required: true }        
     }, { timestamps: true });
 
     const Country = mongoose.model(

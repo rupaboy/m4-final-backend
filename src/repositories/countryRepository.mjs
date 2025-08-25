@@ -65,36 +65,34 @@ class CountryRepository extends IRepository {
     }
 
     //UPDATE
-async updateByCode(code, processedCountry) {
-    const updateDoc = {
-        $set: {
-            name: processedCountry.name,
-            area: processedCountry.area,
-            population: processedCountry.population,
-            flag: processedCountry.flag,
-            languages: processedCountry.languages,
-            continents: processedCountry.continents,
-            capitals: processedCountry.capitals,
-            timezones: processedCountry.timezones,
-            latlng: processedCountry.latlng,
-        }
-    };
-    const existing = await Country.findOne({ code });
+    async updateByCode(code, processedCountry) {
+        const updateDoc = {
+            $set: {
+                name: processedCountry.name,
+                area: processedCountry.area,
+                population: processedCountry.population,
+                flag: processedCountry.flag,
+                languages: processedCountry.languages,
+                continents: processedCountry.continents,
+                capitals: processedCountry.capitals,
+                borders: processedCountry.borders,
+                timezones: processedCountry.timezones
+            }
+        };
 
-    //Insertion
-    const country = await Country.findOneAndUpdate(
-        { code },
-        updateDoc,
-        {
-            new: true,
-            upsert: true,
-            runValidators: true,
-            setDefaultsOnInsert: true
-        }
-    );
-    return country;
-}
-
+        //Insertion
+        const country = await Country.findOneAndUpdate(
+            { code },
+            updateDoc,
+            {
+                new: true,
+                upsert: true,
+                runValidators: true,
+                setDefaultsOnInsert: true
+            }
+        );
+        return country;
+    }
 
     //DELETE
     async deleteById(id) {

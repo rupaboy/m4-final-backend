@@ -1,6 +1,15 @@
 import express from 'express';
 import { authenticateToken, hasPermission } from '../middleware/authMiddleware.mjs'
 
+//Validators/Sanitizers
+import { validationHandler } from '../validators/validationHandler.mjs';
+
+import {
+    idParamValidator,
+    codeParamValidator,
+    nameParamValidator,
+} from '../validators/paramsValidationHelper.mjs';
+
 //Controllers
 import {
     createCountryController,
@@ -8,6 +17,7 @@ import {
     readAllCountriesController,
     readCountryByIdController,
     readCountryByCodeController,
+    readCountryCapitalImage,
     readCountryDuplicatesController,
     updateCountryByCodeController,
     deleteCountryByIdController,
@@ -26,6 +36,7 @@ countryRouter.post( //Tested
 )
 countryRouter.post(
     '/code/:code', //Tested
+    codeParamValidator, validationHandler,
     authenticateToken, hasPermission('create:countries'),
     createCountryController,
 )
@@ -37,42 +48,47 @@ countryRouter.get( //Tested
 )
 countryRouter.get( //Tested
     '/code/:code',
+    codeParamValidator, validationHandler,
     readCountryByCodeController
 ) // not-MongoObjIds but CCA2 country code
+
+countryRouter.get(
+    '/image/:name',
+    nameParamValidator, validationHandler,
+    readCountryCapitalImage
+)
 
 //ADMIN READ_____________________________________________
 countryRouter.get(  //Tested
     '/id/:id',
-    authenticateToken,
-    hasPermission('update:countries'),
+    idParamValidator, validationHandler,
+    authenticateToken, hasPermission('update:countries'),
     readCountryByIdController
 )
 countryRouter.get( //Tested
     '/collection/duplicates',
-    authenticateToken,
-    hasPermission('update:countries'),
+    authenticateToken, hasPermission('update:countries'),
     readCountryDuplicatesController
 )
 
 //ADMIN UPDATE___________________________________________
 countryRouter.put( //Tested
     '/code/:code',
-    authenticateToken,
-    hasPermission('update:countries'),
+    codeParamValidator, validationHandler,
+    authenticateToken, hasPermission('update:countries'),
     updateCountryByCodeController
 )
 
 //ADMIN DELETE___________________________________________
 countryRouter.delete( //Tested
     '/id/:id',
-    authenticateToken,
-    hasPermission('delete:countries'),
+    idParamValidator, validationHandler,
+    authenticateToken, hasPermission('delete:countries'),
     deleteCountryByIdController,
 )
 countryRouter.delete( //Tested
     '/collection/purge',
-    authenticateToken,
-    hasPermission('delete:countries'),
+    authenticateToken, hasPermission('delete:countries'),
     deleteAllCountriesController
 )
 

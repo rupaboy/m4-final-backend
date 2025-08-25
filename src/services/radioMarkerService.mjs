@@ -12,52 +12,40 @@ export async function readAllMarkersByUser(userId) {
     return await RadioMarkerRepository.readAllByUser(userId);
 }
 
-export async function readAllMarkersByCountry(userId, countryCode) {
-    return await RadioMarkerRepository.readAllByCountry(userId, countryCode);
+export async function readAllMarkersByCountry(id, code) {
+    return await RadioMarkerRepository.readAllByCountry(id, code);
 }
 
-export async function searchMarkersByName(userId, query) {
-    return await RadioMarkerRepository.searchByName(userId, query);
+export async function searchMarkersByName(id, name) {
+    return await RadioMarkerRepository.searchByName(id, name);
 }
 
-export async function readMarkerById(markerId) {
-    return await RadioMarkerRepository.readById(markerId);
+export async function readMarkerById(id) {
+    return await RadioMarkerRepository.readById(id);
 }
 
 // UPDATE
-export async function updateMarkerScore(markerId, score) {
-    return await RadioMarkerRepository.updateScore(markerId, score);
+export async function updateMarkerStatus(id) {
+    return await RadioMarkerRepository.updateStatus(id)
 }
 
-// TAGS
-export async function createMarkerTag(markerId, newTag) {
-    return await RadioMarkerRepository.createTag(markerId, newTag);
+export async function updateMarkerScore(id, score) {
+    return await RadioMarkerRepository.updateScore(id, score);
 }
 
-export async function deleteMarkerTag(markerId, tagToRemove) {
-    return await RadioMarkerRepository.deleteTag(markerId, tagToRemove);
-}
-
-export async function updateMarkerTag(markerId, oldTag, newTag) {
-    return await RadioMarkerRepository.updateTag(markerId, oldTag, newTag);
-}
-
-export async function updateMarkerTags(markerId, tagsArray) {
-    return await RadioMarkerRepository.updateTags(markerId, tagsArray);
-}
 
 // DELETE
 export async function deleteMarkerById(markerId) {
     return await RadioMarkerRepository.deleteById(markerId);
 }
 
-export async function deleteAllMarkersByUser(userId) {
-    return await RadioMarkerRepository.deleteAllByUser(userId);
+export async function deleteAllMarkersByUser(id) {
+    return await RadioMarkerRepository.deleteAllByUser(id);
 }
 
 // FAVORITES
-export async function readFavoriteCountries(userId) {
-    return await RadioMarkerRepository.readFavoriteCountries(userId);
+export async function readFavoriteCountries(id) {
+    return await RadioMarkerRepository.readFavoriteCountries(id);
 }
 
 // RADIO BROWSER Axios Singleton

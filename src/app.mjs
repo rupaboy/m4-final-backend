@@ -1,9 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
-import path from 'path';
 import router from './routes/routesIndex.mjs'
 import { mongoConnect } from './config/mongoConnect.mjs';
-import { fileURLToPath } from 'url';
 import cors from 'cors'
 
 //Express instance
@@ -34,10 +32,12 @@ app.get('/health', (req,res) => {
 //Enviroment variable PORT or localhost:3000.
 const PORT = process.env.PORT || 3000;
 
+/*
 //Public Static Files Server
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use('/static', express.static(path.join(__dirname, 'public')));
+*/
 
 //404
 app.use((req,res,next) => {

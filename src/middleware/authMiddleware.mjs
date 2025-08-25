@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.mjs'
+import RadioMarker from '../models/radioMarkerModel.mjs';
 import { findRoleByName } from '../services/roleServices.mjs'
 
 //Authentication Token Verifier
@@ -51,7 +52,17 @@ export const hasPermission = (requiredPermission) => {
             }
 
             const isAdmin = role.name === 'admin';
-            const selfRestricted = ['read:users', 'update:users', 'delete:users'];
+            //console.log(role.name)
+
+            const selfRestricted = [
+                'read:users',
+                'update:users',
+                'delete:users',
+                'create:radios',
+                'read:radios',
+                'update:radios',
+                'delete:radios',
+            ];
 
             //Block edition of role for common user:
             if (requiredPermission === 'update:users' && !isAdmin) {
@@ -59,9 +70,21 @@ export const hasPermission = (requiredPermission) => {
                     delete req.body.role;
                 }
             }
+            if (isAdmin) return next();
 
             if (selfRestricted.includes(requiredPermission)) {
-                if (isAdmin) return next();
+                if (requiredPermission === 'update:radios') {
+                    const marker = await RadioMarker.findById(req.params.id);
+                    if (!marker) {
+                        return res.status(404).json({ message: 'Marker not found' });
+                    }
+                    if (marker.user.toString() !== req.user.id) {
+                        return res.status(403).json({
+                            message: 'You can only update your own radio markers'
+                        });
+                    }
+                    return next();
+                }
                 if (req.params.id && req.params.id !== req.user.id) {
                     return res.status(403).json({
                         message: 'You can only perform this action on your own account'
@@ -69,17 +92,14 @@ export const hasPermission = (requiredPermission) => {
                 }
                 return next();
             }
-
             const hasPermission = role.permissions.some(
                 p => p.name === requiredPermission
             );
-
             if (!hasPermission) {
                 return res.status(403).json({
                     message: 'You have no permissions for this action'
                 });
             }
-
             next();
 
         } catch (error) {

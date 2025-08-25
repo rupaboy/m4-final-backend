@@ -1,18 +1,31 @@
 import express from 'express';
 import { authenticateToken, hasPermission } from '../middleware/authMiddleware.mjs';
+
+//Validators/Sanitizers
+import { validationHandler } from '../validators/validationHandler.mjs';
+
+import {
+    idParamValidator,
+    pageParamValidator,
+    codeParamValidator,
+    nameParamValidator,
+    scoreParamValidator
+} from '../validators/paramsValidationHelper.mjs';
+
+import {
+    radioCreateBodyValidator,
+} from '../validators/bodyValidationHelpers.mjs'
+
 import {
     createRadioMarkerController,
     readAllMarkersByUserController,
     readAllMarkersByCountryController,
     searchMarkersByNameController,
     readMarkerByIdController,
+    updateMarkerStatusController,
     updateMarkerScoreController,
     deleteMarkerByIdController,
     deleteAllMarkersByUserController,
-    createTagController,
-    deleteTagController,
-    updateTagController,
-    updateTagsController,
     readFavoriteCountriesController,
     browseRadiosByCountryCode
 } from '../controllers/radioMarkerControllers.mjs';
@@ -21,93 +34,90 @@ const radioMarkerRouter = express.Router();
 
 // CREATE
 radioMarkerRouter.post(
-    '/',
+    '/create',
+    radioCreateBodyValidator, validationHandler,
     authenticateToken,
-    hasPermission('create:radioMarkers'),
+    hasPermission('create:radios'),
     createRadioMarkerController
 );
 
-// READ
+// READ PUBLIC
 radioMarkerRouter.get(
-    '/user/:userId',
-    authenticateToken,
+    '/browse/:code',
+    codeParamValidator, validationHandler,
+    browseRadiosByCountryCode,
+);
+
+radioMarkerRouter.get(
+    '/browse/:code/:page', //Page is optional
+    codeParamValidator, pageParamValidator, validationHandler,
+    browseRadiosByCountryCode,
+);
+// READ USER
+radioMarkerRouter.get(
+    '/user/:id/list',
+    idParamValidator, validationHandler,
+    authenticateToken, hasPermission('read:radios'),
     readAllMarkersByUserController
 );
 radioMarkerRouter.get(
-    '/user/:userId/country/:countrycode',
+    '/user/:id/country/:code',
+    idParamValidator, codeParamValidator, validationHandler,
     authenticateToken,
+    hasPermission('read:radios'),
     readAllMarkersByCountryController
 );
 radioMarkerRouter.get(
-    '/user/:userId/search',
+    '/namesearch/:id/:name',
+    idParamValidator, nameParamValidator, validationHandler,
     authenticateToken,
+    hasPermission('read:radios'),
     searchMarkersByNameController
 );
 radioMarkerRouter.get(
     '/id/:id',
+    idParamValidator, validationHandler,
     authenticateToken,
+    hasPermission('read:radios'),
     readMarkerByIdController
 );
 
 // FAVORITES
 radioMarkerRouter.get(
-    '/user/:userId/favorites',
-    authenticateToken,
+    '/user/:id/countries',
+    idParamValidator, validationHandler,
+    authenticateToken, hasPermission('read:radios'),
     readFavoriteCountriesController
 );
 
 // UPDATE
 radioMarkerRouter.put(
-    '/id/:id/score',
-    authenticateToken,
-    hasPermission('update:radioMarkers'),
+    '/refresh/:id',
+    idParamValidator, radioCreateBodyValidator, validationHandler,
+    authenticateToken, hasPermission('update:radios'),
+    updateMarkerStatusController,
+);
+radioMarkerRouter.put(
+    '/score/:id/:score',
+    idParamValidator, scoreParamValidator, validationHandler,
+    authenticateToken, hasPermission('update:radios'),
     updateMarkerScoreController
-);
-
-// TAGS
-radioMarkerRouter.put(
-    '/id/:id/tag/add',
-    authenticateToken,
-    hasPermission('update:radioMarkers'),
-    createTagController
-);
-radioMarkerRouter.put(
-    '/id/:id/tag/remove',
-    authenticateToken,
-    hasPermission('update:radioMarkers'),
-    deleteTagController
-);
-radioMarkerRouter.put(
-    '/id/:id/tag/update',
-    authenticateToken,
-    hasPermission('update:radioMarkers'),
-    updateTagController
-);
-radioMarkerRouter.put(
-    '/id/:id/tags/set',
-    authenticateToken,
-    hasPermission('update:radioMarkers'),
-    updateTagsController
 );
 
 // DELETE
 radioMarkerRouter.delete(
     '/id/:id',
+    idParamValidator, validationHandler,
     authenticateToken,
-    hasPermission('delete:radioMarkers'),
+    hasPermission('delete:radios'),
     deleteMarkerByIdController
 );
 radioMarkerRouter.delete(
-    '/user/:userId/purge',
+    '/user/:id/purge',
+    idParamValidator, validationHandler,
     authenticateToken,
-    hasPermission('delete:radioMarkers'),
+    hasPermission('delete:radios'),
     deleteAllMarkersByUserController
-);
-
-radioMarkerRouter.get(
-    '/browser/country/:countryCode',
-    authenticateToken,
-    browseRadiosByCountryCode,
 );
 
 export default radioMarkerRouter;

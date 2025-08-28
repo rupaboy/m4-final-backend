@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import Role from "./roleModel.mjs";
 
 const userSchema = new mongoose.Schema({
 

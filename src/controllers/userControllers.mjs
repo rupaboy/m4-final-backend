@@ -169,8 +169,14 @@ export async function updateUserByIdController(req, res) {
     const { username, email, password, location, role: roleInput } = req.body;
 
     try {
-        // Avoid 'admin' username
-        if (username && username.toLowerCase() === 'admin') {
+        const currentUser = await User.findById(id);
+
+        if (!currentUser) {
+            return res.status(404).json({ message: `User with id ${id} not found` });
+        }
+
+        // Blocks admin username for everyone but admin's account
+        if (username && username.toLowerCase() === 'admin' && username !== currentUser.username) {
             return res.status(400).json({ message: `Username "${username}" reserved for administrator` });
         }
 

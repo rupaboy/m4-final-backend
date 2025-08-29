@@ -169,7 +169,7 @@ export async function updateUserByIdController(req, res) {
     const { username, email, password, location, role: roleInput } = req.body;
 
     try {
-        const currentUser = await User.findById(id);
+        const currentUser = await readUserById(id)
 
         if (!currentUser) {
             return res.status(404).json({ message: `User with id ${id} not found` });

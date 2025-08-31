@@ -30,7 +30,7 @@ export const authenticateToken = (req, res, next) => {
     }
 };
 
-const radioPermissions = ['update:radios', 'delete:radios', 'read:radios'];
+const radioPermissions = ['update:radios', 'delete:radios'];
 
 export const hasPermission = (requiredPermission) => {
     return async (req, res, next) => {
@@ -79,11 +79,12 @@ export const hasPermission = (requiredPermission) => {
                     const marker = await RadioMarker.findById(req.params.id);
                     if (marker.user.toString() !== req.user.id) {
                         return res.status(403).json({
-                            message: 'You can only update your own radio markers'
+                            message: 'You can only access your own radio markers'
                         });
                     }
                     return next();
                 }
+
                 if (req.params.id && req.params.id !== req.user.id) {
                     return res.status(403).json({
                         message: 'You can only perform this action on your own account'

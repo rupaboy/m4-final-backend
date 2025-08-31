@@ -73,12 +73,11 @@ export async function browseRadiosByCountryCode(req, res) {
         // Fetch stations paginated
         const { data: stations } = await radioBrowserAPI.get(
             `/stations/bycountrycodeexact/${code.toLowerCase()}`,
-            { params: { offset, limit: RADIO_PAGE_LIMIT } } // sin order
+            { params: { offset, limit: RADIO_PAGE_LIMIT } }
         );
 
-        if (!stations || stations.length === 0) {
-            return res.status(404).json({ message: 'No stations found for this country.' });
-        }
+        // Filter out stations without url_resolved
+        const validStations = (stations || []).filter(s => s.url_resolved && s.url_resolved.trim() !== "");
 
         // Fetch user's marked stations
         const userMarkers = await RadioMarker.find({
@@ -88,9 +87,9 @@ export async function browseRadiosByCountryCode(req, res) {
         const favoriteUUIDs = new Set(userMarkers.map(m => m.stationuuid));
 
         // Format stations
-        const formatted = stations.map(station => ({
+        const formatted = validStations.map(station => ({
             stationuuid: station.stationuuid,
-            name: station.name.trim(),
+            name: station.name?.trim(),
             tags: station.tags ? station.tags.split(',').map(t => t.trim()) : [],
             url_resolved: station.url_resolved,
             state: station.state,
@@ -100,7 +99,7 @@ export async function browseRadiosByCountryCode(req, res) {
 
         // Determine next/previous page
         const previousPage = currentPage > 1 ? currentPage - 1 : null;
-        const nextPage = stations.length === RADIO_PAGE_LIMIT ? currentPage + 1 : null;
+        const nextPage = validStations.length === RADIO_PAGE_LIMIT ? currentPage + 1 : null;
 
         res.status(200).json({
             page: currentPage,
@@ -112,6 +111,7 @@ export async function browseRadiosByCountryCode(req, res) {
         res.status(500).json({ title: 'Server error', error: error.message });
     }
 }
+
 
 export async function readAllMarkersByUserController(req, res) {
     try {

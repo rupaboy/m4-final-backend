@@ -30,6 +30,8 @@ export const authenticateToken = (req, res, next) => {
     }
 };
 
+const radioPermissions = ['update:radios', 'delete:radios', 'read:radios'];
+
 export const hasPermission = (requiredPermission) => {
     return async (req, res, next) => {
         try {
@@ -73,7 +75,7 @@ export const hasPermission = (requiredPermission) => {
             if (isAdmin) return next();
 
             if (selfRestricted.includes(requiredPermission)) {
-                if (requiredPermission === 'update:radios') {
+                if (radioPermissions.includes(requiredPermission)) {
                     const marker = await RadioMarker.findById(req.params.id);
                     if (!marker) {
                         return res.status(404).json({ message: 'Marker not found' });

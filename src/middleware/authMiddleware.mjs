@@ -77,9 +77,6 @@ export const hasPermission = (requiredPermission) => {
             if (selfRestricted.includes(requiredPermission)) {
                 if (radioPermissions.includes(requiredPermission)) {
                     const marker = await RadioMarker.findById(req.params.id);
-                    if (!marker) {
-                        return res.status(404).json({ message: 'Marker not found' });
-                    }
                     if (marker.user.toString() !== req.user.id) {
                         return res.status(403).json({
                             message: 'You can only update your own radio markers'

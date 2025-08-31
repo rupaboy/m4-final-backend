@@ -32,8 +32,10 @@ export function sanitizeCountryObject(raw) {
             : [],
         capitals: raw.capital?.map(c => c.trim()) || ["N/A"],
         borders: Array.isArray(raw.borders)
-            ? raw.borders.map(c => cca3ToCca2[c] || c) // convierte CCA3 a CCA2
-            : ["N/A"],
+            ? raw.borders
+                .map(c => cca3ToCca2[c]) // Translate code if cca2 exists
+                .filter(Boolean)         // Discard if they don't (like "UNK" from unknown borders)
+            : [], //no borders
         timezones: raw.timezones || [],
     };
 }

@@ -116,8 +116,7 @@ export async function browseRadiosByCountryCode(req, res) {
 export async function readAllMarkersByUserController(req, res) {
     try {
         const markers = await readAllMarkersByUser(req.params.id);
-        if (!markers.length) return res.status(404).json({ message: "No markers found for user" });
-        return res.status(200).json(markers);
+        return res.status(200).json(markers || []); // always return an array
     } catch (error) {
         return res.status(500).json({ title: "Server error", error: error.message });
     }
@@ -163,14 +162,14 @@ export async function updateMarkerStatusController(req, res) {
         const updated = await updateMarkerStatus(id);
 
         if (!updated) {
-            return res.status(404).json({ message: `No se pudo actualizar el marcador con id ${id}` });
+            return res.status(404).json({ message: `Couldn't update marker id:${id}` });
         }
         return res.status(200).json({
-            message: `Marcador ${updated.name} actualizado correctamente`,
+            message: `Marker ${updated.name} updated`,
             marker: updated
         });
     } catch (error) {
-        return res.status(500).json({ title: "Error del servidor", error: error.message });
+        return res.status(500).json({ title: "Server Error", error: error.message });
     }
 }
 

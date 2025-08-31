@@ -34,7 +34,7 @@ export async function createRadioMarkerController(req, res) {
             user: userId,
             stationuuid,
             name,
-            tags: SanitizeTags(tags),
+            tags,
             url_resolved,
             state,
             countryCode

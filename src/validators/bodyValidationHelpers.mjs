@@ -64,56 +64,61 @@ export const userUpdateBodyValidator = [
 ];
 
 export const radioCreateBodyValidator = [
-    body("stationuuid")
-        .exists().withMessage("UUID required").bail()
-        .trim()
-        .notEmpty().withMessage("UUID can't be empty").bail()
-        .isUUID().withMessage("Invalid UUID format"),
+  body("stationuuid")
+    .exists().withMessage("UUID required").bail()
+    .trim()
+    .notEmpty().withMessage("UUID can't be empty").bail()
+    .isUUID().withMessage("Invalid UUID format"),
 
-    body("name")
-        .exists().withMessage("Name required").bail()
-        .trim()
-        .notEmpty().withMessage("Name cannot be empty").bail()
-        .isLength({ min: 3, max: 80 })
-            .withMessage('Station names admit between three and eighty characters'),
+  body("name")
+    .exists().withMessage("Name required").bail()
+    .trim()
+    .notEmpty().withMessage("Name cannot be empty").bail()
+    .isLength({ min: 3, max: 80 })
+    .withMessage("Station names admit between three and eighty characters"),
 
-    body("tags")
-        .exists().withMessage("No tags property found").bail()
-        .isString().withMessage("Tags must be a string").bail()
-        .isLength({ min: 2, max: 18 }).withMessage('Tags admit between two and eighteen characters')
-        .customSanitizer(value => {
-            return [...new Set(
-                value
-                    .split(",")
-                    .map(t => t.trim().toLowerCase())
-                    .filter(Boolean)
-            )];
-        }), //Each tag is already processed
+  body("tags")
+    .exists().withMessage("No tags property found").bail()
+    .customSanitizer(value => {
+      if (Array.isArray(value)) {
+        value = value.join(",");
+      }
+      return [...new Set(
+        value
+          .split(",")
+          .map(t => t.trim().toLowerCase())
+          .filter(Boolean)
+      )];
+    })
+    .isArray().withMessage("Tags must be an array of strings"),
 
-    body("score")
-        .exists().withMessage('A score value is required').bail()
-        .isInt({ min: 0, max: 5 }).withMessage("Score must be an integer between 1 and 5").bail()
-        .toInt(),
+  body("score")
+    .optional({ nullable: true })
+    .customSanitizer(value => value === "" ? null : value)
+    .custom(value => {
+      if (value === null) return true; // permite null
+      if (!Number.isInteger(Number(value))) throw new Error("Score must be an integer between 0 and 5");
+      if (value < 0 || value > 5) throw new Error("Score must be between 0 and 5");
+      return true;
+    }),
 
-    body("url_resolved")
-        .exists().withMessage("url_resolved is required").bail()
-        .trim()
-        .notEmpty().withMessage("url_resolved cannot be empty").bail()
-        .isURL({ require_protocol: true }).withMessage("url_resolved must be a valid URL"),
+  body("url_resolved")
+    .exists().withMessage("url_resolved is required").bail()
+    .trim()
+    .notEmpty().withMessage("url_resolved cannot be empty").bail()
+    .isURL({ require_protocol: true }).withMessage("url_resolved must be a valid URL"),
 
-    body("state")
-        .exists().withMessage("State required").bail()
-        .trim()
-        .notEmpty().withMessage("State cannot be an empty string").bail()
-        .isLength({ min: 3, max: 80 })
-            .withMessage('State names admit between three and eighty characters'),
+  body("state")
+    .optional({ nullable: true })
+    .customSanitizer(value => value === "" ? null : value)
+    .isLength({ min: 3, max: 80 }).withMessage("State names admit between three and eighty characters"),
 
-    body("countryCode")
-        .exists().withMessage('A country Alpha-2 code is required for this request').bail()
-        .trim()
-        .notEmpty().withMessage('Country alpha-2 code cannot be an empty string').bail()
-        .isString().withMessage('Countries alpha-2 codes must be string values').bail()
-        .isAlpha().withMessage('Country code must contain only letters').bail()
-        .isLength({ min: 2, max: 2 }).withMessage('country code must be exactly 2 characters').bail()
-        .toUpperCase()
+  body("countryCode")
+    .exists().withMessage('A country Alpha-2 code is required').bail()
+    .trim()
+    .notEmpty().withMessage('Country code cannot be empty').bail()
+    .isString().withMessage('Country code must be string').bail()
+    .isAlpha().withMessage('Country code must contain only letters').bail()
+    .isLength({ min: 2, max: 2 }).withMessage('Country code must be exactly 2 characters').bail()
+    .toUpperCase()
 ];

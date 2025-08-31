@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const radioMarkerSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
+        ref: "User",
         required: true
     },
     stationuuid: {
@@ -16,21 +16,21 @@ const radioMarkerSchema = new mongoose.Schema({
     },
     tags: {
         type: [String], // <-- ARRAY of strings. Sanitize API response: .split(',').
-        required: false,
         default: []
     },
     score: {
         type: Number,
         min: 0,
         max: 5,
-        default: 0
+        default: null
     },
     url_resolved: {
         type: String,
         required: true
     },
     state: {
-        type: String
+        type: String,
+        default: ""
     },
     countryCode: {
         type: String,

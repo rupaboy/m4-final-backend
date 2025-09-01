@@ -169,14 +169,18 @@ export async function updateUserByIdController(req, res) {
     const { username, email, password, location, role: roleInput } = req.body;
 
     try {
-        const currentUser = await readUserById(id)
+        const currentUser = await readUserById(id);
 
         if (!currentUser) {
             return res.status(404).json({ message: `User with id ${id} not found` });
         }
 
-        // Blocks admin username for everyone but admin's account
-        if (username && username.toLowerCase() === 'admin' && username !== currentUser.username) {
+        // main admin's username cannot be changed
+        if (currentUser.username === "admin" && username && username !== "admin") {
+            delete req.body.username };
+
+        // Block username 'admin' for other users than admin
+        if (username && username.toLowerCase() === "admin" && currentUser.username !== "admin") {
             return res.status(400).json({ message: `Username "${username}" reserved for administrator` });
         }
 
@@ -215,6 +219,7 @@ export async function updateUserByIdController(req, res) {
         return res.status(500).json({ title: "Server error", error: error.message });
     }
 }
+
 
 //DELETE
 export async function deleteUserByIdController(req, res) {

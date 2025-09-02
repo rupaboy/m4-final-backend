@@ -21,8 +21,10 @@ export async function createNewUserController(req, res) {
         const { username, email, password, location, role: roleName } = req.body;
 
         //Validating duplicates
-        const existingUser = await readUserByEmail(email);
-        if (existingUser) return res.status(400).json({ message: 'Email already in use' });
+        const existingEmail = await readUserByEmail(email);
+        if (existingEmail) return res.status(400).json({ message: 'Email already in use' });
+        const existingUsername = await readUserByUsername(username);
+        if (existingUsername) return res.status(400).json({ message: 'Email already in use' });
         // Find given Role
         const role = await findRoleByName(roleName)
         if (!role) return res.status(400).json({ message: `Role "${roleName}" does not exist` });
@@ -162,7 +164,6 @@ export async function readUserDuplicatesController(req, res) {
         });
     }
 }
-
 // UPDATE
 export async function updateUserByIdController(req, res) {
     const { id } = req.params;
@@ -177,14 +178,26 @@ export async function updateUserByIdController(req, res) {
 
         // main admin's username cannot be changed
         if (currentUser.username === "admin" && username && username !== "admin") {
-            delete req.body.username };
+            delete req.body.username;
+        }
 
-        // Block username 'admin' for other users than admin
+        // Block username 'admin' for non-admins
         if (username && username.toLowerCase() === "admin" && currentUser.username !== "admin") {
             return res.status(400).json({ message: `Username "${username}" reserved for administrator` });
         }
 
-        // as long as they come with the body of the request
+        // Validate duplicates only if trying to change
+        if (email && email !== currentUser.email) {
+            const existingEmail = await readUserByEmail(email);
+            if (existingEmail) return res.status(400).json({ message: 'Email already in use' });
+        }
+
+        if (username && username !== currentUser.username) {
+            const existingUsername = await readUserByUsername(username);
+            if (existingUsername) return res.status(400).json({ message: 'Username already in use' });
+        }
+
+        // Build update object only with provided fields
         const updatedData = {
             ...(username && { username }),
             ...(email && { email }),
@@ -192,7 +205,7 @@ export async function updateUserByIdController(req, res) {
             ...(location && { location }),
         };
 
-        // Validate role if it comes
+        // Validate role if provided
         if (typeof roleInput !== "undefined") {
             const newRole = await findRoleByName(roleInput);
             if (!newRole) {
@@ -219,7 +232,6 @@ export async function updateUserByIdController(req, res) {
         return res.status(500).json({ title: "Server error", error: error.message });
     }
 }
-
 
 //DELETE
 export async function deleteUserByIdController(req, res) {

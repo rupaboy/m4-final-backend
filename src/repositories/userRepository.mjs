@@ -127,7 +127,5 @@ class UserRepository extends IRepository {
         return deletedUser.toObject();
     }
 
-
-    //END OF 
 }
 export default new UserRepository();

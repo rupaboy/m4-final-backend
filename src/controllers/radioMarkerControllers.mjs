@@ -76,9 +76,6 @@ export async function browseRadiosByCountryCode(req, res) {
             { params: { offset, limit: RADIO_PAGE_LIMIT } }
         );
 
-        // Filter out stations without url_resolved
-        const validStations = (stations || []).filter(s => s.url_resolved && s.url_resolved.trim() !== "");
-
         // Fetch user's marked stations
         const userMarkers = await RadioMarker.find({
             user: req.user,
@@ -86,8 +83,8 @@ export async function browseRadiosByCountryCode(req, res) {
         }).lean();
         const favoriteUUIDs = new Set(userMarkers.map(m => m.stationuuid));
 
-        // Format stations
-        const formatted = validStations.map(station => ({
+        // Format stations (sin filtrar en backend)
+        const formatted = (stations || []).map(station => ({
             stationuuid: station.stationuuid,
             name: station.name?.trim(),
             tags: station.tags ? station.tags.split(',').map(t => t.trim()) : [],
@@ -97,9 +94,9 @@ export async function browseRadiosByCountryCode(req, res) {
             favorite: favoriteUUIDs.has(station.stationuuid)
         }));
 
-        // Determine next/previous page
+        // Determine next/previous page (basado en el límite)
         const previousPage = currentPage > 1 ? currentPage - 1 : null;
-        const nextPage = validStations.length === RADIO_PAGE_LIMIT ? currentPage + 1 : null;
+        const nextPage = (stations || []).length === RADIO_PAGE_LIMIT ? currentPage + 1 : null;
 
         res.status(200).json({
             page: currentPage,

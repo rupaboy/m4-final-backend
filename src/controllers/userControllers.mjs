@@ -38,7 +38,7 @@ export async function createNewUserController(req, res) {
         return res.status(201).json({
             message: `User ${username} created successfully`,
             user: {
-                id_: createdUser._id,
+                _id: createdUser._id,
                 username: createdUser.username,
                 email: createdUser.email,
                 location: createdUser.location,

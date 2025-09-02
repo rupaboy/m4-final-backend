@@ -14,31 +14,32 @@ import {
     deleteByUsernamesAllUsersExceptAdmin
 } from '../services/userServices.mjs'
 
-//CREATE
+// CREATE
 export async function createNewUserController(req, res) {
-
     try {
         const { username, email, password, location, role: roleName } = req.body;
 
-        //Validating duplicates
-        const existingEmail = await readUserByEmail(email);
-        if (existingEmail) return res.status(400).json({ message: 'Email already in use' });
-        const existingUsername = await readUserByUsername(username);
-        if (existingUsername) return res.status(400).json({ message: 'Email already in use' });
-        // Find given Role
-        const role = await findRoleByName(roleName)
-        if (!role) return res.status(400).json({ message: `Role "${roleName}" does not exist` });
+        // Validating duplicates
+        if (!username || !email || !password) {
+            return res.status(422).json({ success: false, message: 'Username, email and password are required' });
+        }
 
-        const userData = {
-            username,
-            email,
-            password,
-            location,
-            role: role._id
-        };
-        const createdUser = await createNewUser(userData)
+        const existingEmail = await readUserByEmail(email);
+        if (existingEmail) return res.status(422).json({ success: false, message: 'Email already in use' });
+
+        const existingUsername = await readUserByUsername(username);
+        if (existingUsername) return res.status(422).json({ success: false, message: 'Username already in use' });
+
+        // Find given Role
+        const role = await findRoleByName(roleName);
+        if (!role) return res.status(422).json({ success: false, message: `Role "${roleName}" does not exist` });
+
+        const userData = { username, email, password, location, role: role._id };
+        const createdUser = await createNewUser(userData);
+
         return res.status(201).json({
-            message: `User ${username} created successfully`,
+            success: true,
+            message: `User "${username}" created successfully`,
             user: {
                 _id: createdUser._id,
                 username: createdUser.username,
@@ -48,7 +49,7 @@ export async function createNewUserController(req, res) {
             }
         });
     } catch (error) {
-        return res.status(500).json({ title: 'Server error', error: error.message });
+        return res.status(500).json({ success: false, title: 'Server error', error: error.message });
     }
 }
 
@@ -164,6 +165,7 @@ export async function readUserDuplicatesController(req, res) {
         });
     }
 }
+
 // UPDATE
 export async function updateUserByIdController(req, res) {
     const { id } = req.params;
@@ -171,30 +173,27 @@ export async function updateUserByIdController(req, res) {
 
     try {
         const currentUser = await readUserById(id);
+        if (!currentUser) return res.status(404).json({ success: false, message: `User with id ${id} not found` });
 
-        if (!currentUser) {
-            return res.status(404).json({ message: `User with id ${id} not found` });
-        }
-
-        // main admin's username cannot be changed
+        // Main admin username cannot be changed
         if (currentUser.username === "admin" && username && username !== "admin") {
             delete req.body.username;
         }
 
         // Block username 'admin' for non-admins
         if (username && username.toLowerCase() === "admin" && currentUser.username !== "admin") {
-            return res.status(400).json({ message: `Username "${username}" reserved for administrator` });
+            return res.status(422).json({ success: false, message: 'Username "admin" is reserved for administrator' });
         }
 
         // Validate duplicates only if trying to change
         if (email && email !== currentUser.email) {
             const existingEmail = await readUserByEmail(email);
-            if (existingEmail) return res.status(400).json({ message: 'Email already in use' });
+            if (existingEmail) return res.status(422).json({ success: false, message: 'Email already in use' });
         }
 
         if (username && username !== currentUser.username) {
             const existingUsername = await readUserByUsername(username);
-            if (existingUsername) return res.status(400).json({ message: 'Username already in use' });
+            if (existingUsername) return res.status(422).json({ success: false, message: 'Username already in use' });
         }
 
         // Build update object only with provided fields
@@ -209,27 +208,21 @@ export async function updateUserByIdController(req, res) {
         if (typeof roleInput !== "undefined") {
             const newRole = await findRoleByName(roleInput);
             if (!newRole) {
-                return res.status(400).json({ message: `Role "${roleInput}" does not exist` });
+                return res.status(422).json({ success: false, message: `Role "${roleInput}" does not exist` });
             }
             updatedData.role = newRole._id;
         }
 
         const updatedUser = await updateUserById(id, updatedData);
 
-        if (!updatedUser) {
-            return res.status(404).json({ message: `User with id ${id} not found` });
-        }
-
         return res.status(200).json({
-            message: `User ${updatedUser.username} updated successfully`,
+            success: true,
+            message: `User "${updatedUser.username}" updated successfully`,
             user: updatedUser,
         });
 
     } catch (error) {
-        if (error.message.includes("already exists")) {
-            return res.status(400).json({ message: error.message });
-        }
-        return res.status(500).json({ title: "Server error", error: error.message });
+        return res.status(500).json({ success: false, title: 'Server error', error: error.message });
     }
 }
 

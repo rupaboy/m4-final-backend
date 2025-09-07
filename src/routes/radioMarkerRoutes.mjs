@@ -27,6 +27,7 @@ import {
     deleteMarkerByIdController,
     deleteAllMarkersByUserController,
     readFavoriteCountriesController,
+    searchRadiosByCountryCodeAndName,
     browseRadiosByCountryCode
 } from '../controllers/radioMarkerControllers.mjs';
 
@@ -52,6 +53,12 @@ radioMarkerRouter.get(
     '/browse/:code/:page', //Page is optional
     codeParamValidator, pageParamValidator, validationHandler,
     browseRadiosByCountryCode,
+);
+
+radioMarkerRouter.get(
+    '/search/:code/:name/:page', //Page is optional
+    codeParamValidator, pageParamValidator, nameParamValidator, validationHandler,
+    searchRadiosByCountryCodeAndName,
 );
 // READ USER
 radioMarkerRouter.get(

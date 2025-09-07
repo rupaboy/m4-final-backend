@@ -62,6 +62,52 @@ export async function readFavoriteCountriesController(req, res) {
         return res.status(500).json({ title: "Server error", error: error.message });
     }
 }
+export async function searchRadiosByCountryCodeAndName(req, res) {
+    try {
+        const RADIO_PAGE_LIMIT = parseInt(process.env.RADIO_PAGE_LIMIT, 10);
+        const { code, name, page } = req.params;
+
+        const currentPage = parseInt(page, 10) || 1;
+        const offset = (currentPage - 1) * RADIO_PAGE_LIMIT;
+
+        // Fetch stations by country code and name ... paginated
+        const { data: stations } = await radioBrowserAPI.get(
+            `/stations/search?countrycode=${code.toLowerCase()}&name=${encodeURIComponent(name)}`,
+            { params: { offset, limit: RADIO_PAGE_LIMIT } }
+        );
+
+        // Fetch user's marked stations
+        const userMarkers = await RadioMarker.find({
+            user: req.user,
+            countryCode: code.toUpperCase()
+        }).lean();
+        const favoriteUUIDs = new Set(userMarkers.map(m => m.stationuuid));
+
+        // Format stations (no backend filter)
+        const formatted = (stations || []).map(station => ({
+            stationuuid: station.stationuuid,
+            name: station.name?.trim(),
+            tags: station.tags ? station.tags.split(',').map(t => t.trim()) : [],
+            url_resolved: station.url_resolved,
+            state: station.state,
+            countryCode: code.toUpperCase(),
+            favorite: favoriteUUIDs.has(station.stationuuid)
+        }));
+
+        // Determine next/previous page (Limit based)
+        const previousPage = currentPage > 1 ? currentPage - 1 : null;
+        const nextPage = (stations || []).length === RADIO_PAGE_LIMIT ? currentPage + 1 : null;
+
+        res.status(200).json({
+            page: currentPage,
+            previousPage,
+            nextPage,
+            results: formatted
+        });
+    } catch (error) {
+        res.status(500).json({ title: 'Server error', error: error.message });
+    }
+}
 
 export async function browseRadiosByCountryCode(req, res) {
     try {
@@ -108,7 +154,6 @@ export async function browseRadiosByCountryCode(req, res) {
         res.status(500).json({ title: 'Server error', error: error.message });
     }
 }
-
 
 export async function readAllMarkersByUserController(req, res) {
     try {

@@ -64,16 +64,11 @@ export async function readFavoriteCountriesController(req, res) {
 }
 export async function searchRadiosByCountryCodeAndName(req, res) {
     try {
-        const RADIO_PAGE_LIMIT = parseInt(process.env.RADIO_PAGE_LIMIT, 10);
-        const { code, name, page } = req.params;
-
-        const currentPage = parseInt(page, 10) || 1;
-        const offset = (currentPage - 1) * RADIO_PAGE_LIMIT;
+        const { code, name } = req.params;
 
         // Fetch stations by country code and name ... paginated
         const { data: stations } = await radioBrowserAPI.get(
-            `/stations/search?countrycode=${code.toLowerCase()}&name=${encodeURIComponent(name)}`,
-            { params: { offset, limit: RADIO_PAGE_LIMIT } }
+            `/stations/search?countrycode=${code.toLowerCase()}&name=${encodeURIComponent(name)}`
         );
 
         // Fetch user's marked stations
@@ -94,14 +89,7 @@ export async function searchRadiosByCountryCodeAndName(req, res) {
             favorite: favoriteUUIDs.has(station.stationuuid)
         }));
 
-        // Determine next/previous page (Limit based)
-        const previousPage = currentPage > 1 ? currentPage - 1 : null;
-        const nextPage = (stations || []).length === RADIO_PAGE_LIMIT ? currentPage + 1 : null;
-
         res.status(200).json({
-            page: currentPage,
-            previousPage,
-            nextPage,
             results: formatted
         });
     } catch (error) {

@@ -56,8 +56,8 @@ radioMarkerRouter.get(
 );
 
 radioMarkerRouter.get(
-    '/search/:code/:name/:page', //Page is optional
-    codeParamValidator, pageParamValidator, nameParamValidator, validationHandler,
+    '/search/:code/:name', //Page is optional
+    codeParamValidator, nameParamValidator, validationHandler,
     searchRadiosByCountryCodeAndName,
 );
 // READ USER
